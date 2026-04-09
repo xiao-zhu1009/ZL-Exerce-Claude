@@ -1,8 +1,22 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import store from '../store'
+import { getToken, removeToken } from '../utils/auth'
+import { Message } from 'element-ui'
 
 Vue.use(VueRouter)
+
+const WHITE_LIST = ['/login', '/register', '/403']
+const LOGIN_REDIRECT_DELAY = 1200
+
+function isTokenExpired(token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]))
+    return payload.exp * 1000 < Date.now()
+  } catch {
+    return true
+  }
+}
 
 const routes = [
   { path: '/', redirect: '/login' },
@@ -60,13 +74,34 @@ const routes = [
 
 const router = new VueRouter({ mode: 'history', routes })
 
-// 路由守卫：角色权限控制
+const ROLE_HOME = { user: '/user/dashboard', coach: '/coach/students', admin: '/admin/statistics' }
+
 router.beforeEach((to, from, next) => {
-  const role = store.getters.role
+  const token = getToken()
+
+  // 白名单直接放行，但已登录且有效则跳首页
+  if (WHITE_LIST.includes(to.path)) {
+    if (token && !isTokenExpired(token)) {
+      return next(ROLE_HOME[store.getters.role] || '/')
+    }
+    return next()
+  }
+
+  // 无 token
+  if (!token) return next('/login')
+
+  // token 过期
+  if (isTokenExpired(token)) {
+    removeToken()
+    return next('/login')
+  }
+
+  // 角色权限校验
   const requiredRole = to.matched.find(r => r.meta.role)?.meta.role
-  if (!requiredRole) return next()
-  if (!store.getters.isLoggedIn) return next('/login')
-  if (role !== requiredRole && role !== 'admin') return next('/403')
+  if (requiredRole && store.getters.role !== requiredRole && store.getters.role !== 'admin') {
+    return next('/403')
+  }
+
   next()
 })
 

@@ -2,21 +2,47 @@
   <div class="login-wrap">
     <el-card class="login-card">
       <h2 style="text-align:center;margin-bottom:24px">注册账号</h2>
-      <el-form :model="form" :rules="rules" ref="form" label-width="0">
+
+      <!-- Step 1: 手机号 + 验证码 -->
+      <el-form v-if="step === 1" :model="phoneForm" :rules="phoneRules" ref="phoneForm" label-width="0">
+        <el-form-item prop="phone">
+          <el-input v-model="phoneForm.phone" placeholder="手机号" prefix-icon="el-icon-mobile-phone" />
+        </el-form-item>
+        <el-form-item prop="code">
+          <div style="display:flex;gap:8px">
+            <el-input v-model="phoneForm.code" placeholder="验证码" prefix-icon="el-icon-message" />
+            <el-button :disabled="countdown > 0 || !/^1[3-9]\d{9}$/.test(phoneForm.phone)" @click="sendCode" style="white-space:nowrap">
+              {{ countdown > 0 ? `${countdown}s` : '获取验证码' }}
+            </el-button>
+          </div>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" style="width:100%" :loading="loading" @click="verifyCode">下一步</el-button>
+        </el-form-item>
+        <div style="text-align:center">
+          <router-link to="/login">已有账号？去登录</router-link>
+        </div>
+      </el-form>
+
+      <!-- Step 2: 账号密码等信息 -->
+      <el-form v-if="step === 2" :model="regForm" :rules="regRules" ref="regForm" label-width="0">
+        <el-form-item>
+          <el-input :value="phoneForm.phone" disabled prefix-icon="el-icon-mobile-phone" />
+        </el-form-item>
         <el-form-item prop="username">
-          <el-input v-model="form.username" placeholder="用户名" prefix-icon="el-icon-user" />
+          <el-input v-model="regForm.username" placeholder="账号" prefix-icon="el-icon-user" />
         </el-form-item>
         <el-form-item prop="nickname">
-          <el-input v-model="form.nickname" placeholder="昵称" prefix-icon="el-icon-s-custom" />
+          <el-input v-model="regForm.nickname" placeholder="昵称" prefix-icon="el-icon-s-custom" />
         </el-form-item>
         <el-form-item prop="password">
-          <el-input v-model="form.password" type="password" placeholder="密码" prefix-icon="el-icon-lock" />
+          <el-input v-model="regForm.password" type="password" show-password placeholder="密码（至少6位）" prefix-icon="el-icon-lock" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" style="width:100%" :loading="loading" @click="submit">注 册</el-button>
         </el-form-item>
         <div style="text-align:center">
-          <router-link to="/login">已有账号？去登录</router-link>
+          <el-button type="text" @click="step = 1">返回上一步</el-button>
         </div>
       </el-form>
     </el-card>
@@ -24,31 +50,72 @@
 </template>
 
 <script>
-import { register } from '../../api/auth'
+import { sendCode as apiSendCode, verifyCode as apiVerifyCode, register } from '../../api/auth'
 
 export default {
   name: 'Register',
   data() {
     return {
+      step: 1,
       loading: false,
-      form: { username: '', nickname: '', password: '' },
-      rules: {
-        username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
+      countdown: 0,
+      phoneForm: { phone: '', code: '' },
+      regForm: { username: '', nickname: '', password: '' },
+      phoneRules: {
+        phone: [
+          { required: true, message: '请输入手机号', trigger: 'blur' },
+          { pattern: /^1[3-9]\d{9}$/, message: '手机号格式不正确', trigger: 'blur' }
+        ],
+        code: [{ required: true, message: '请输入验证码', trigger: 'blur' }]
+      },
+      regRules: {
+        username: [{ required: true, message: '请输入账号', trigger: 'blur' }],
         nickname: [{ required: true, message: '请输入昵称', trigger: 'blur' }],
         password: [{ required: true, min: 6, message: '密码至少6位', trigger: 'blur' }]
       }
     }
   },
   methods: {
-    submit() {
-      this.$refs.form.validate(async valid => {
+    sendCode() {
+      this.$refs.phoneForm.validateField('phone', async err => {
+        if (err) return
+        try {
+          await apiSendCode({ phone: this.phoneForm.phone })
+          this.$message.success('验证码已发送')
+          this.countdown = 60
+          const timer = setInterval(() => {
+            this.countdown--
+            if (this.countdown <= 0) clearInterval(timer)
+          }, 1000)
+        } catch {
+          this.$message.error('发送失败，请重试')
+        }
+      })
+    },
+    verifyCode() {
+      this.$refs.phoneForm.validate(async valid => {
         if (!valid) return
         this.loading = true
         try {
-          // TODO: 对接后端 POST /auth/register
-          await register(this.form)
+          await apiVerifyCode({ phone: this.phoneForm.phone, code: this.phoneForm.code })
+          this.step = 2
+        } catch {
+          this.$message.error('验证码错误')
+        } finally {
+          this.loading = false
+        }
+      })
+    },
+    submit() {
+      this.$refs.regForm.validate(async valid => {
+        if (!valid) return
+        this.loading = true
+        try {
+          await register({ phone: this.phoneForm.phone, code: this.phoneForm.code, ...this.regForm })
           this.$message.success('注册成功，请登录')
           this.$router.push('/login')
+        } catch (e) {
+          this.$message.error(e?.response?.data?.msg || '注册失败')
         } finally {
           this.loading = false
         }
