@@ -4,7 +4,7 @@ import { Message } from 'element-ui'
 
 // TODO: 对接后端时修改 baseURL 为实际地址，如 http://localhost:8000
 const request = axios.create({
-  baseURL: '/api',
+  baseURL: 'http://localhost:8003/ZL-API',
   timeout: 10000
 })
 

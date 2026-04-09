@@ -43,6 +43,7 @@ export default {
         try {
           // TODO: 对接后端 POST /auth/login，返回 { token, user }
           const res = await login(this.form)
+          console.log('传给后端登录对象后端返回的数据',res)
           const { token, ...user } = res.data
           this.$store.dispatch('login', { token, user })
           const roleMap = { user: '/user/dashboard', coach: '/coach/students', admin: '/admin/statistics' }

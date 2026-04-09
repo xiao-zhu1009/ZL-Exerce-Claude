@@ -1,10 +1,12 @@
 // Token / 用户信息存取工具
-const TOKEN_KEY = 'zl_token'
-const USER_KEY = 'zl_user'
+import Cookies from 'js-cookie'
 
-export function getToken() { return localStorage.getItem(TOKEN_KEY) }
-export function setToken(token) { localStorage.setItem(TOKEN_KEY, token) }
-export function removeToken() { localStorage.removeItem(TOKEN_KEY) }
+const TOKEN_KEY = 'zl_token'
+const USER_KEY  = 'zl_user'
+
+export function getToken()        { return Cookies.get(TOKEN_KEY) }
+export function setToken(token)   { Cookies.set(TOKEN_KEY, token, { expires: 1, sameSite: 'Strict' }) }
+export function removeToken()     { Cookies.remove(TOKEN_KEY) }
 
 export function getUser() {
   const u = localStorage.getItem(USER_KEY)
