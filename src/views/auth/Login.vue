@@ -41,11 +41,10 @@ export default {
         if (!valid) return
         this.loading = true
         try {
-          console.log('点击登陆前form',this.form)
           const res = await login(this.form)
-          console.log('点击登陆后res',res)
           const { token, ...user } = res.data
           this.$store.dispatch('login', { token, user })
+          // 根据不同用户类型跳转不同路由
           const roleMap = { user: '/user/dashboard', coach: '/coach/students', admin: '/admin/statistics' }
           this.$router.push(roleMap[user.role] || '/')
         } catch (e) {

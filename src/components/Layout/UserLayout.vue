@@ -15,6 +15,12 @@
     </el-aside>
     <el-container>
       <el-header style="background:#fff;display:flex;align-items:center;justify-content:flex-end;border-bottom:1px solid #eee">
+        <!-- 头像占位：后续有头像 URL 时改为 :src="user.avatar"
+             方案1（推荐）：后端返回 avatar URL，直接绑定
+             方案2：el-upload 上传后赋值 -->
+        <el-avatar :size="32" style="margin-right:8px;cursor:pointer" @click.native="$router.push('/user/profile')">
+          <i class="el-icon-user" />
+        </el-avatar>
         <span style="margin-right:12px;color:#666">{{ user && user.nickname }}</span>
         <el-button size="small" @click="logout">退出</el-button>
       </el-header>
