@@ -80,15 +80,20 @@ export default {
       this.$refs.phoneForm.validateField('phone', async err => {
         if (err) return
         try {
-          await apiSendCode({ phone: this.phoneForm.phone })
-          this.$message.success('验证码已发送')
+          const res = await apiSendCode({ phone: this.phoneForm.phone })
+          if (res.code !== 200) {
+            this.$message.error(res.message || '发送失败')
+            return
+          }
+          this.$message.success(res.message || '验证码已发送')
           this.countdown = 60
           const timer = setInterval(() => {
             this.countdown--
             if (this.countdown <= 0) clearInterval(timer)
           }, 1000)
-        } catch {
-          this.$message.error('发送失败，请重试')
+        } catch (e) {
+          const d = e?.response?.data
+          this.$message.error(d?.message || d?.detail || '发送失败，请重试')
         }
       })
     },
@@ -97,10 +102,18 @@ export default {
         if (!valid) return
         this.loading = true
         try {
-          await apiVerifyCode({ phone: this.phoneForm.phone, code: this.phoneForm.code })
+          const res = await apiVerifyCode({
+            phone: this.phoneForm.phone,
+            code: this.phoneForm.code
+          })
+          if (res.code !== 200) {
+            this.$message.error(res.message || '验证失败')
+            return
+          }
           this.step = 2
-        } catch {
-          this.$message.error('验证码错误')
+        } catch (e) {
+          const d = e?.response?.data
+          this.$message.error(d?.message || d?.detail || '验证失败')
         } finally {
           this.loading = false
         }
@@ -111,11 +124,20 @@ export default {
         if (!valid) return
         this.loading = true
         try {
-          await register({ phone: this.phoneForm.phone, code: this.phoneForm.code, ...this.regForm })
-          this.$message.success('注册成功，请登录')
+          const res = await register({
+            phone: this.phoneForm.phone,
+            code: this.phoneForm.code,
+            ...this.regForm
+          })
+          if (res.code !== 200) {
+            this.$message.error(res.message || '注册失败')
+            return
+          }
+          this.$message.success(res.message || '注册成功，请登录')
           this.$router.push('/login')
         } catch (e) {
-          this.$message.error(e?.response?.data?.msg || '注册失败')
+          const d = e?.response?.data
+          this.$message.error(d?.message || d?.detail || '注册失败')
         } finally {
           this.loading = false
         }

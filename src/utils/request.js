@@ -3,9 +3,9 @@ import { getToken, removeToken } from './auth'
 import { Message } from 'element-ui'
 import router from '../router'
 
-// TODO: 对接后端时修改 baseURL 为实际地址，如 http://localhost:8000
+// TODO: 对接后端时修改 baseURL 为实际地址
 const request = axios.create({
-  baseURL: 'http://localhost:8008/ZL-API',
+  baseURL: 'http://localhost:8008/api',
   timeout: 10000
 })
 

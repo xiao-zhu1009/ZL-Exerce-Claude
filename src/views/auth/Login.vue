@@ -42,13 +42,24 @@ export default {
         this.loading = true
         try {
           const res = await login(this.form)
-          const { token, ...user } = res.data
+          // 拦截器已返回 res.data，即后端信封 { code, message, data }
+          if (res.code !== 200) {
+            this.$message.error(res.message || '登录失败')
+            return
+          }
+          const payload = res.data || {}
+          const { token, ...user } = payload
+          if (!token) {
+            this.$message.error('登录响应缺少 token')
+            return
+          }
           this.$store.dispatch('login', { token, user })
           // 根据不同用户类型跳转不同路由
           const roleMap = { user: '/user/dashboard', coach: '/coach/students', admin: '/admin/statistics' }
           this.$router.push(roleMap[user.role] || '/')
         } catch (e) {
-          this.$message.error(e?.response?.data?.detail || '登录失败')
+          const d = e?.response?.data
+          this.$message.error(d?.message || d?.detail || '登录失败')
         } finally {
           this.loading = false
         }
