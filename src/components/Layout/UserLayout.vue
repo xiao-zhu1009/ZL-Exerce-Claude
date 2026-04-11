@@ -14,15 +14,20 @@
       </el-menu>
     </el-aside>
     <el-container>
-      <el-header style="background:#fff;display:flex;align-items:center;justify-content:flex-end;border-bottom:1px solid #eee">
-        <!-- 头像占位：后续有头像 URL 时改为 :src="user.avatar"
-             方案1（推荐）：后端返回 avatar URL，直接绑定
-             方案2：el-upload 上传后赋值 -->
-        <el-avatar :size="32" style="margin-right:8px;cursor:pointer" @click.native="$router.push('/user/profile')">
-          <i class="el-icon-user" />
-        </el-avatar>
-        <span style="margin-right:12px;color:#666">{{ user && user.nickname }}</span>
-        <el-button size="small" @click="logout">退出</el-button>
+      <el-header class="user-layout-header">
+        <el-dropdown trigger="click" class="user-menu" @command="handleUserCommand">
+          <span class="user-menu-trigger">
+            <el-avatar :size="32" fit="cover" :src="headerAvatar" class="user-menu-avatar">
+              <i class="el-icon-user" />
+            </el-avatar>
+            <span class="user-menu-name">{{ displayName }}</span>
+            <i class="el-icon-arrow-down user-menu-caret" />
+          </span>
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="profile" icon="el-icon-user">个人主页</el-dropdown-item>
+            <el-dropdown-item command="logout" divided icon="el-icon-switch-button">退出登录</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
       </el-header>
       <el-main style="background:#f0f2f5">
         <router-view />
@@ -34,8 +39,30 @@
 <script>
 export default {
   name: 'UserLayout',
-  computed: { user() { return this.$store.state.user } },
+  computed: {
+    user() {
+      return this.$store.state.user
+    },
+    /** 与个人主页一致：有 URL 则显示图，否则用插槽默认图标；随登录 / Profile 内 syncUserToStore 更新 */
+    headerAvatar() {
+      const a = (this.user && this.user.avatar ? String(this.user.avatar) : '').trim()
+      return a || undefined
+    },
+    displayName() {
+      if (!this.user) return '用户'
+      return (this.user.nickname || this.user.username || '').trim() || '用户'
+    }
+  },
   methods: {
+    handleUserCommand(cmd) {
+      if (cmd === 'profile') {
+        if (this.$route.path !== '/user/profile') {
+          this.$router.push('/user/profile')
+        }
+        return
+      }
+      if (cmd === 'logout') this.logout()
+    },
     logout() {
       this.$store.dispatch('logout')
       this.$router.push('/login')
@@ -43,3 +70,46 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.user-layout-header {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  border-bottom: 1px solid #eee;
+  padding-right: 8px;
+}
+.user-menu-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #606266;
+  outline: none;
+}
+.user-menu-trigger:hover {
+  background: #f5f7fa;
+  color: #409eff;
+}
+.user-menu-avatar {
+  flex-shrink: 0;
+  background: #c0c4cc !important;
+}
+.user-menu-name {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+}
+.user-menu-caret {
+  font-size: 12px;
+  color: #909399;
+}
+.user-menu-trigger:hover .user-menu-caret {
+  color: #409eff;
+}
+</style>

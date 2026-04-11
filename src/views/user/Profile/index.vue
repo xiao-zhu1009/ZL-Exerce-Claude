@@ -6,10 +6,28 @@
       <el-col :span="12">
         <el-card>
           <div slot="header">账号信息</div>
-          <div style="text-align:center;margin-bottom:20px">
-            <el-avatar :size="80" style="background:#c0c4cc">
+          <div class="avatar-block">
+            <el-avatar :size="80" fit="cover" :src="displayAvatar" style="background:#c0c4cc">
               <i class="el-icon-user" style="font-size:36px" />
             </el-avatar>
+            <div class="avatar-actions">
+              <el-upload
+                class="avatar-uploader"
+                action="#"
+                :show-file-list="false"
+                accept="image/*"
+                name="file"
+                :http-request="uploadAvatar"
+              >
+                <el-button size="small" type="primary" plain>上传头像</el-button>
+              </el-upload>
+              <el-button
+                v-if="profile.avatar"
+                size="small"
+                type="text"
+                @click="clearAvatar"
+              >恢复默认</el-button>
+            </div>
           </div>
           <el-form :model="profile" label-width="90px">
             <el-form-item label="账号">
@@ -122,6 +140,11 @@ export default {
       if (b < 24) return '正常'
       if (b < 28) return '超重'
       return '肥胖'
+    },
+    /** 无自定义头像时不传 src，显示默认图标插槽 */
+    displayAvatar() {
+      const a = (this.profile.avatar || '').trim()
+      return a || undefined
     }
   },
   created() {
@@ -130,12 +153,32 @@ export default {
   },
   methods: {
     async loadProfile() {
-      const res = await request.get('/user/profile')
-      this.profile = res.data
+      try {
+        const res = await request.get('/user/profile')
+        if (res.code !== 200) {
+          this.$message.error(res.message || '加载失败')
+          return
+        }
+        Object.assign(this.profile, res.data || {})
+        this.syncUserToStore(res.data)
+      } catch (e) {
+        const d = e?.response?.data
+        this.$message.error(d?.message || d?.detail || '加载失败')
+      }
+    },
+    syncUserToStore(data) {
+      if (!data || !this.$store.state.user) return
+      const u = { ...this.$store.state.user }
+      if (data.nickname != null) u.nickname = data.nickname
+      if (data.avatar != null) u.avatar = data.avatar
+      this.$store.commit('SET_USER', u)
     },
     async loadBodyStats() {
-      const res = await request.get('/user/body-stats')
-      if (res.data) Object.assign(this.body, res.data)
+      try {
+        const res = await request.get('/user/body-stats')
+        if (res.code !== 200) return
+        if (res.data) Object.assign(this.body, res.data)
+      } catch (_) { /* 忽略 */ }
     },
     calcAuto() {
       const { height, weight, waist, hip } = this.body
@@ -144,14 +187,68 @@ export default {
     },
     async saveProfile() {
       const { nickname, phone, signature } = this.profile
-      await request.put('/user/profile', { nickname, phone, signature })
-      this.$message.success('账号信息已保存')
+      try {
+        const res = await request.put('/user/profile', { nickname, phone, signature })
+        if (res.code !== 200) {
+          this.$message.error(res.message || '保存失败')
+          return
+        }
+        this.$message.success(res.message || '账号信息已保存')
+        this.syncUserToStore({ nickname, phone, signature })
+      } catch (e) {
+        const d = e?.response?.data
+        this.$message.error(d?.message || d?.detail || '保存失败')
+      }
+    },
+    async uploadAvatar(options) {
+      const raw = options.file
+      const formData = new FormData()
+      formData.append('file', raw)
+      try {
+        const res = await request.post('/user/avatar', formData)
+        if (res.code !== 200) {
+          this.$message.error(res.message || '上传失败')
+          throw new Error(res.message || 'upload fail')
+        }
+        const url = res.data && res.data.avatar
+        if (url) this.profile.avatar = url
+        this.$message.success(res.message || '头像已更新')
+        this.syncUserToStore({ avatar: url })
+      } catch (e) {
+        const d = e?.response?.data
+        this.$message.error(d?.message || d?.detail || e.message || '上传失败')
+        throw e
+      }
+    },
+    async clearAvatar() {
+      try {
+        const res = await request.put('/user/profile', { avatar: '' })
+        if (res.code !== 200) {
+          this.$message.error(res.message || '操作失败')
+          return
+        }
+        this.profile.avatar = ''
+        this.$message.success('已恢复默认头像')
+        this.syncUserToStore({ avatar: '' })
+      } catch (e) {
+        const d = e?.response?.data
+        this.$message.error(d?.message || d?.detail || '操作失败')
+      }
     },
     async saveBody() {
       const { height, weight, body_fat, waist, hip } = this.body
-      const res = await request.put('/user/body-stats', { height, weight, body_fat, waist, hip })
-      if (res.data) Object.assign(this.body, res.data)
-      this.$message.success('身体指标已保存')
+      try {
+        const res = await request.put('/user/body-stats', { height, weight, body_fat, waist, hip })
+        if (res.code !== 200) {
+          this.$message.error(res.message || '保存失败')
+          return
+        }
+        if (res.data) Object.assign(this.body, res.data)
+        this.$message.success(res.message || '身体指标已保存')
+      } catch (e) {
+        const d = e?.response?.data
+        this.$message.error(d?.message || d?.detail || '保存失败')
+      }
     },
     async changePassword() {
       const { old_password, new_password, confirm_password } = this.pwdForm
@@ -167,13 +264,28 @@ export default {
         await this.$store.dispatch('logout')
         this.$router.replace('/login')
       } catch (e) {
-        const d = e.response?.data?.detail
-        let msg = '修改失败'
-        if (typeof d === 'string') msg = d
-        else if (Array.isArray(d) && d[0]?.msg) msg = d[0].msg
-        this.$message.error(msg)
+        const d = e?.response?.data
+        this.$message.error(d?.message || d?.detail || '修改失败')
       }
     }
   }
 }
 </script>
+
+<style scoped>
+.avatar-block {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.avatar-actions {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.avatar-uploader {
+  display: inline-block;
+}
+</style>

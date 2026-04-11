@@ -3,16 +3,19 @@ import { getToken, removeToken } from './auth'
 import { Message } from 'element-ui'
 import router from '../router'
 
-// TODO: 对接后端时修改 baseURL 为实际地址
+// 局域网/手机调试时请在 .env.development 设置 VUE_APP_API_BASE（需带 /api），并重启 npm run serve
 const request = axios.create({
-  baseURL: 'http://localhost:8008/api',
-  timeout: 10000
+  baseURL: process.env.VUE_APP_API_BASE || 'http://127.0.0.1:8008/api',
+  timeout: 60000
 })
 
-// 请求拦截：注入 Token
+// 请求拦截：注入 Token；FormData 必须删掉 Content-Type，让浏览器自动带 multipart boundary
 request.interceptors.request.use(config => {
   const token = getToken()
   if (token) config.headers.Authorization = `Bearer ${token}`
+  if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+    delete config.headers['Content-Type']
+  }
   return config
 })
 
