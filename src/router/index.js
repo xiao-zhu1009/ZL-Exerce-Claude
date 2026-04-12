@@ -92,14 +92,14 @@ const router = new VueRouter({ mode: 'history', routes })
 router.beforeEach((to, from, next) => {
   const token = getToken()
 
-  // 白名单直接放行，但已登录且有效则跳对应首页（禁止 fallback 到 '/'，否则会 / → /login 无限循环）
+  // 登录页、注册页、403路由页无需全局前置守卫token验证，其余路由跳转需要判断有无token+失效验证
   if (WHITE_LIST.includes(to.path)) {
     if (token && !isTokenExpired(token)) {
       const home = ROLE_HOME[resolveRoleForHome(token)]
       if (home) return next(home)
       removeToken()
       store.commit('LOGOUT')
-    }
+    } 
     return next()
   }
 
@@ -113,8 +113,12 @@ router.beforeEach((to, from, next) => {
   }
 
   // 角色权限校验（与首页跳转一致：JWT 可作后备，避免仅有 token、Vuex 未带 role 时误拦）
+  // 判断当前登录的用户等级role(user/coach/admin)，先从vuex中拿去role，没有就解码token解析role
   const effectiveRole = resolveRoleForHome(token) || store.getters.role
+  console.log('to是什么',to)
+  // 遍历当前目标路由往上全部路由配置项的meta中确定当前用户角色权限（user/coach/admin）
   const requiredRole = to.matched.find(r => r.meta.role)?.meta.role
+  // 只有目标路由所需权限和当前账号权限相同时才能放行跳转
   if (requiredRole && effectiveRole !== requiredRole && effectiveRole !== 'admin') {
     return next('/403')
   }

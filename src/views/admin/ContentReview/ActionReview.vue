@@ -177,7 +177,7 @@
 import { getAdminActions, getActionDetail, reviewAction, offlineAction } from '@/api/admin'
 
 // 静态资源根路径，用于拼接封面图/视频完整 URL
-const BASE_URL = process.env.VUE_APP_API_BASE || 'http://127.0.0.1:8008/api'
+const BASE_URL = process.env.VUE_APP_API_BASE || 'http://127.0.0.1:8009/api'
 
 export default {
   name: 'ActionReview',

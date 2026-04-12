@@ -11,6 +11,7 @@
               <i class="el-icon-user" style="font-size:36px" />
             </el-avatar>
             <div class="avatar-actions">
+              <!-- :http-request="uploadAvatar"覆盖action后的url接口路径，可以自定义上传行为 -->
               <el-upload
                 class="avatar-uploader"
                 action="#"

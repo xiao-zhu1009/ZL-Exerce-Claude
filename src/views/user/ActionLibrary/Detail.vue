@@ -79,7 +79,7 @@
 <script>
 import { getActionDetail } from '@/api/action'
 
-const BASE_URL = process.env.VUE_APP_API_BASE || 'http://127.0.0.1:8008/api'
+const BASE_URL = process.env.VUE_APP_API_BASE || 'http://127.0.0.1:8009/api'
 
 export default {
   name: 'ActionDetail',

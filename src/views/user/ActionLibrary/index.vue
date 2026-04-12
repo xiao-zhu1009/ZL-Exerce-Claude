@@ -36,6 +36,7 @@
     <!-- 动作卡片列表 -->
     <el-row :gutter="16" v-loading="loading">
       <el-col :span="6" v-for="action in list" :key="action.id" style="margin-bottom:16px">
+        <!-- 点击动作卡片跳转详情页 -->
         <el-card class="action-card" @click.native="$router.push(`/user/actions/${action.id}`)">
           <!-- 封面图：有图显示图片，无图显示部位文字占位 -->
           <div class="cover">
@@ -76,7 +77,7 @@
 <script>
 import { getActions } from '@/api/action'
 
-const BASE_URL = process.env.VUE_APP_API_BASE || 'http://127.0.0.1:8008/api'
+const BASE_URL = process.env.VUE_APP_API_BASE || 'http://127.0.0.1:8009/api'
 
 export default {
   name: 'ActionLibrary',

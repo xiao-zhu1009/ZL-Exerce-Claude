@@ -41,6 +41,7 @@ export default {
         if (!valid) return
         this.loading = true
         try {
+          // 将账号/手机号+密码发送请求
           const res = await login(this.form)
           // 拦截器已返回 res.data，即后端信封 { code, message, data }
           if (res.code !== 200) {

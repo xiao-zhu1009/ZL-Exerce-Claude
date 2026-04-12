@@ -194,7 +194,7 @@ import { publishAction, getMyActions, updateMyAction, deleteMyAction, uploadActi
 // 后端静态资源根路径，用于拼接封面图/视频的完整可访问 URL
 // 例：form.cover_img = "action_covers/1_abc.jpg"
 //     完整 URL = BASE_URL + "/static/" + "action_covers/1_abc.jpg"
-const BASE_URL = process.env.VUE_APP_API_BASE || 'http://127.0.0.1:8008/api'
+const BASE_URL = process.env.VUE_APP_API_BASE || 'http://127.0.0.1:8009/api'
 
 export default {
   name: 'ActionPublish',
@@ -307,10 +307,12 @@ export default {
       }
       this.submitting = true
       try {
+        // 修改动作重新提交审核接口
         if (this.editId) {
           await updateMyAction(this.editId, data)
           this.$message.success('已重新提交审核')
         } else {
+          // 教练端动作投稿提交动作审核接口
           await publishAction(data)
           this.$message.success('提交成功，等待审核')
         }

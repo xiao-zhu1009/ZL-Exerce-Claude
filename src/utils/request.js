@@ -5,7 +5,7 @@ import router from '@/router'
 
 // 局域网/手机调试时请在 .env.development 设置 VUE_APP_API_BASE（需带 /api），并重启 npm run serve
 const request = axios.create({
-  baseURL: process.env.VUE_APP_API_BASE || 'http://127.0.0.1:8008/api',
+  baseURL: process.env.VUE_APP_API_BASE || 'http://127.0.0.1:8009/api',
   timeout: 60000
 })
 
