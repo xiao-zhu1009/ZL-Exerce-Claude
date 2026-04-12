@@ -30,7 +30,7 @@
 
 <script>
 import echarts from 'echarts'
-import { getDashboard } from '../../../api/user'
+import { getDashboard } from '@/api/user'
 
 export default {
   name: 'Dashboard',

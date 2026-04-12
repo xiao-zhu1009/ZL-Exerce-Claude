@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import { getToken, setToken, removeToken, getUser, setUser, removeUser } from '../utils/auth'
+import { getToken, setToken, removeToken, getUser, setUser, removeUser } from '@/utils/auth'
 
 Vue.use(Vuex)
 

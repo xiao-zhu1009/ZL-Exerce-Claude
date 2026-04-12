@@ -38,7 +38,7 @@
 </template>
 
 <script>
-import { getDietArticles } from '../../../api/diet'
+import { getDietArticles } from '@/api/diet'
 
 export default {
   name: 'DietCenter',

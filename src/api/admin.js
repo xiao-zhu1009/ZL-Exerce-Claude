@@ -1,40 +1,31 @@
-// TODO: 对接后端时取消 request 注释，删除 mockResolve 返回
-// import request from '../utils/request'
+import request from '@/utils/request'
 const mockResolve = data => Promise.resolve({ code: 200, msg: 'success', data })
 
 export function getAdminUsers(params = {}) {
-  // TODO: return request.get('/admin/users', { params })
-  return mockResolve({
-    list: [
-      { id: 1, username: 'user01', nickname: '健身达人', role: 'user', status: 1, created_at: '2026-01-10' },
-      { id: 2, username: 'coach01', nickname: '王教练', role: 'coach', status: 1, created_at: '2026-01-05' },
-      { id: 3, username: 'user02', nickname: '运动小白', role: 'user', status: 0, created_at: '2026-02-20' }
-    ],
-    total: 3
-  })
+  return request.get('/admin/users', { params })
 }
 
 export function toggleUserStatus(id, status) {
-  // TODO: return request.put(`/admin/users/${id}/status`, { status })
-  return mockResolve(null)
+  return request.put(`/admin/users/${id}/status`, { status })
 }
 
+// 修改用户角色
 export function changeUserRole(id, role) {
-  // TODO: return request.put(`/admin/users/${id}/role`, { role })
-  return mockResolve(null)
+  return request.put(`/admin/users/${id}/role`, { role })
 }
 
-export function getPendingActions() {
-  // TODO: return request.get('/admin/actions/pending')
-  return mockResolve([
-    { id: 10, title: '俯卧撑进阶版', body_part: '胸', category: '力量', difficulty: 2, author_name: '王教练', created_at: '2026-04-07', status: 0 },
-    { id: 11, title: '弹力带侧平举', body_part: '肩', category: '力量', difficulty: 1, author_name: '李教练', created_at: '2026-04-06', status: 0 }
-  ])
+// 获取动作列表，status: 0待审核 1已上线 2已驳回 3已下架，不传则返回全部
+export function getAdminActions(params = {}) {
+  return request.get('/admin/actions', { params })
 }
 
 export function reviewAction(id, data) {
-  // TODO: return request.put(`/admin/actions/${id}/review`, data)
-  return mockResolve(null)
+  // data: { status: 1 } 通过 | { status: 2, reject_reason: '...' } 驳回
+  return request.put(`/admin/actions/${id}/review`, data)
+}
+
+export function offlineAction(id) {
+  return request.put(`/admin/actions/${id}/offline`)
 }
 
 export function getPendingArticles() {

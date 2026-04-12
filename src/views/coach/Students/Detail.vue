@@ -53,7 +53,7 @@
 </template>
 
 <script>
-import { getStudentDetail, createPlan } from '../../../api/coach'
+import { getStudentDetail, createPlan } from '@/api/coach'
 
 export default {
   name: 'StudentDetail',

@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import { getMyCourses, publishCourse, updateCourse, toggleCourseStatus } from '../../../api/course'
+import { getMyCourses, publishCourse, updateCourse, toggleCourseStatus } from '@/api/course'
 
 export default {
   name: 'CourseManage',

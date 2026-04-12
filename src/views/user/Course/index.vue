@@ -35,7 +35,7 @@
 </template>
 
 <script>
-import { getCourses, reserveCourse } from '../../../api/course'
+import { getCourses, reserveCourse } from '@/api/course'
 
 export default {
   name: 'Course',

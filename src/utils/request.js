@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { getToken, removeToken } from './auth'
 import { Message } from 'element-ui'
-import router from '../router'
+import router from '@/router'
 
 // 局域网/手机调试时请在 .env.development 设置 VUE_APP_API_BASE（需带 /api），并重启 npm run serve
 const request = axios.create({

@@ -19,7 +19,7 @@
 
 <script>
 import echarts from 'echarts'
-import { getStatistics } from '../../../api/admin'
+import { getStatistics } from '@/api/admin'
 
 export default {
   name: 'Statistics',

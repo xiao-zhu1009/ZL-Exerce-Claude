@@ -35,7 +35,8 @@
           <el-button size="mini" :type="scope.row.status ? 'danger' : 'success'" @click="toggleStatus(scope.row)">
             {{ scope.row.status ? '封禁' : '解封' }}
           </el-button>
-          <el-select v-model="scope.row.role" size="mini" style="width:90px;margin-left:8px" @change="changeRole(scope.row)">
+          <el-select v-model="scope.row.role" size="mini" style="width:90px;margin-left:8px"
+            @change="val => confirmChangeRole(scope.row, val)">
             <el-option label="用户" value="user" /><el-option label="教练" value="coach" />
           </el-select>
         </template>
@@ -45,7 +46,7 @@
 </template>
 
 <script>
-import { getAdminUsers, toggleUserStatus, changeUserRole } from '../../../api/admin'
+import { getAdminUsers, toggleUserStatus, changeUserRole } from '@/api/admin'
 
 export default {
   name: 'UserManage',
@@ -61,14 +62,49 @@ export default {
       } finally { this.loading = false }
     },
     async toggleStatus(user) {
-      // TODO: 对接后端 PUT /admin/users/:id/status
-      await toggleUserStatus(user.id, user.status ? 0 : 1)
-      user.status = user.status ? 0 : 1
+      const newStatus = user.status ? 0 : 1
+      const name = user.nickname || user.username
+      try {
+        await this.$confirm(
+          newStatus === 0 ? `确认封禁「${name}」？封禁后该用户将被强制下线且无法登录。` : `确认解封「${name}」？`,
+          newStatus === 0 ? '封禁确认' : '解封确认',
+          { confirmButtonText: '确认', cancelButtonText: '取消', type: 'warning' }
+        )
+      } catch { return }
+      try {
+        const res = await toggleUserStatus(user.id, newStatus)
+        if (res.code !== 200) return this.$message.error(res.msg || '操作失败')
+        user.status = newStatus
+        this.$message.success(newStatus === 0 ? '已封禁，该用户将被强制下线' : '已解封')
+      } catch (e) {
+        this.$message.error(e?.response?.data?.detail || '操作失败')
+      }
     },
-    async changeRole(user) {
-      // TODO: 对接后端 PUT /admin/users/:id/role
-      await changeUserRole(user.id, user.role)
-      this.$message.success('角色已更新')
+    async confirmChangeRole(user, newRole) {
+      const oldRole = newRole === 'user' ? 'coach' : 'user'  // el-select 已更新 v-model，反推旧值
+      const label = { user: '普通用户', coach: '教练' }
+      try {
+        await this.$confirm(
+          `确认将「${user.nickname || user.username}」的角色从 ${label[oldRole]} 改为 ${label[newRole]}？\n该用户需重新登录后生效。`,
+          '修改角色确认',
+          { confirmButtonText: '确认', cancelButtonText: '取消', type: 'warning' }
+        )
+      } catch {
+        // 取消：回滚 v-model
+        user.role = oldRole
+        return
+      }
+      try {
+        const res = await changeUserRole(user.id, newRole)
+        if (res.code !== 200) {
+          user.role = oldRole
+          return this.$message.error(res.msg || '操作失败')
+        }
+        this.$message.success('角色已更新，该用户需重新登录后生效')
+      } catch (e) {
+        user.role = oldRole
+        this.$message.error(e?.response?.data?.detail || '操作失败')
+      }
     },
     roleLabel(r) { return { user: '用户', coach: '教练', admin: '管理员' }[r] },
     roleType(r) { return { user: '', coach: 'success', admin: 'danger' }[r] }

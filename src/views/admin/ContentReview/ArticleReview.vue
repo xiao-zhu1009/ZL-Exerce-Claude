@@ -25,7 +25,7 @@
 </template>
 
 <script>
-import { getPendingArticles, reviewArticle } from '../../../api/admin'
+import { getPendingArticles, reviewArticle } from '@/api/admin'
 
 export default {
   name: 'ArticleReview',

@@ -18,7 +18,7 @@
 </template>
 
 <script>
-import { getStudents } from '../../../api/coach'
+import { getStudents } from '@/api/coach'
 
 export default {
   name: 'Students',

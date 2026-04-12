@@ -1,88 +1,104 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import store from '../store'
-import { getToken, removeToken } from '../utils/auth'
-import { Message } from 'element-ui'
+import store from '@/store'
+import { getToken, removeToken } from '@/utils/auth'
 
 Vue.use(VueRouter)
 
 const WHITE_LIST = ['/login', '/register', '/403']
-const LOGIN_REDIRECT_DELAY = 1200
+const ROLE_HOME = { user: '/user/dashboard', coach: '/coach/students', admin: '/admin/statistics' }
+
+function decodeJwtPayload(token) {
+  try {
+    return JSON.parse(atob(token.split('.')[1]))
+  } catch {
+    return null
+  }
+}
 
 function isTokenExpired(token) {
-  try {
-    const payload = JSON.parse(atob(token.split('.')[1]))
-    return payload.exp * 1000 < Date.now()
-  } catch {
-    return true
-  }
+  const payload = decodeJwtPayload(token)
+  if (!payload?.exp) return true
+  return payload.exp * 1000 < Date.now()
+}
+
+/** 首页跳转用：优先 Vuex，避免仅有 token、本地 user 丢失时 next('/') → / 再跳 /login 死循环 */
+function resolveRoleForHome(token) {
+  const r = store.getters.role
+  if (r && ROLE_HOME[r]) return r
+  const fromJwt = decodeJwtPayload(token)?.role
+  if (fromJwt && ROLE_HOME[fromJwt]) return fromJwt
+  return ''
 }
 
 const routes = [
   { path: '/', redirect: '/login' },
-  { path: '/login', component: () => import('../views/auth/Login.vue') },
-  { path: '/register', component: () => import('../views/auth/Register.vue') },
-  { path: '/403', component: () => import('../views/auth/Forbidden.vue') },
+  { path: '/login', component: () => import('@/views/auth/Login.vue') },
+  { path: '/register', component: () => import('@/views/auth/Register.vue') },
+  { path: '/403', component: () => import('@/views/auth/Forbidden.vue') },
 
   // 用户端
   {
     path: '/user',
-    component: () => import('../components/Layout/UserLayout.vue'),
+    component: () => import('@/components/Layout/UserLayout.vue'),
     meta: { role: 'user' },
     children: [
       { path: '', redirect: 'dashboard' },
-      { path: 'dashboard', component: () => import('../views/user/Dashboard/index.vue') },
-      { path: 'actions', component: () => import('../views/user/ActionLibrary/index.vue') },
-      { path: 'actions/:id', component: () => import('../views/user/ActionLibrary/Detail.vue') },
-      { path: 'diet', component: () => import('../views/user/DietCenter/index.vue') },
-      { path: 'diet/articles/:id', component: () => import('../views/user/DietCenter/ArticleDetail.vue') },
-      { path: 'diet/record', component: () => import('../views/user/DietCenter/DietRecord.vue') },
-      { path: 'courses', component: () => import('../views/user/Course/index.vue') },
-      { path: 'profile', component: () => import('../views/user/Profile/index.vue') }
+      { path: 'dashboard', component: () => import('@/views/user/Dashboard/index.vue') },
+      { path: 'actions', component: () => import('@/views/user/ActionLibrary/index.vue') },
+      { path: 'actions/:id', component: () => import('@/views/user/ActionLibrary/Detail.vue') },
+      { path: 'diet', component: () => import('@/views/user/DietCenter/index.vue') },
+      { path: 'diet/articles/:id', component: () => import('@/views/user/DietCenter/ArticleDetail.vue') },
+      { path: 'diet/record', component: () => import('@/views/user/DietCenter/DietRecord.vue') },
+      { path: 'courses', component: () => import('@/views/user/Course/index.vue') },
+      { path: 'profile', component: () => import('@/views/user/Profile/index.vue') },
+      { path: 'apply-coach', component: () => import('@/views/user/ApplyCoach/index.vue') }
     ]
   },
 
   // 教练端
   {
     path: '/coach',
-    component: () => import('../components/Layout/CoachLayout.vue'),
+    component: () => import('@/components/Layout/CoachLayout.vue'),
     meta: { role: 'coach' },
     children: [
       { path: '', redirect: 'students' },
-      { path: 'students', component: () => import('../views/coach/Students/index.vue') },
-      { path: 'students/:id', component: () => import('../views/coach/Students/Detail.vue') },
-      { path: 'courses', component: () => import('../views/coach/CourseManage/index.vue') },
-      { path: 'publish/action', component: () => import('../views/coach/ContentPublish/ActionPublish.vue') },
-      { path: 'publish/article', component: () => import('../views/coach/ContentPublish/ArticlePublish.vue') }
+      { path: 'students', component: () => import('@/views/coach/Students/index.vue') },
+      { path: 'students/:id', component: () => import('@/views/coach/Students/Detail.vue') },
+      { path: 'courses', component: () => import('@/views/coach/CourseManage/index.vue') },
+      { path: 'publish/action', component: () => import('@/views/coach/ContentPublish/ActionPublish.vue') },
+      { path: 'publish/article', component: () => import('@/views/coach/ContentPublish/ArticlePublish.vue') }
     ]
   },
 
   // 管理员端
   {
     path: '/admin',
-    component: () => import('../components/Layout/AdminLayout.vue'),
+    component: () => import('@/components/Layout/AdminLayout.vue'),
     meta: { role: 'admin' },
     children: [
       { path: '', redirect: 'statistics' },
-      { path: 'statistics', component: () => import('../views/admin/Statistics/index.vue') },
-      { path: 'users', component: () => import('../views/admin/UserManage/index.vue') },
-      { path: 'review/actions', component: () => import('../views/admin/ContentReview/ActionReview.vue') },
-      { path: 'review/articles', component: () => import('../views/admin/ContentReview/ArticleReview.vue') }
+      { path: 'statistics', component: () => import('@/views/admin/Statistics/index.vue') },
+      { path: 'users', component: () => import('@/views/admin/UserManage/index.vue') },
+      { path: 'review/actions', component: () => import('@/views/admin/ContentReview/ActionReview.vue') },
+      { path: 'review/articles', component: () => import('@/views/admin/ContentReview/ArticleReview.vue') },
+      { path: 'coach-apply', component: () => import('@/views/admin/CoachApply/index.vue') }
     ]
   }
 ]
 
 const router = new VueRouter({ mode: 'history', routes })
 
-const ROLE_HOME = { user: '/user/dashboard', coach: '/coach/students', admin: '/admin/statistics' }
-
 router.beforeEach((to, from, next) => {
   const token = getToken()
 
-  // 白名单直接放行，但已登录且有效则跳首页
+  // 白名单直接放行，但已登录且有效则跳对应首页（禁止 fallback 到 '/'，否则会 / → /login 无限循环）
   if (WHITE_LIST.includes(to.path)) {
     if (token && !isTokenExpired(token)) {
-      return next(ROLE_HOME[store.getters.role] || '/')
+      const home = ROLE_HOME[resolveRoleForHome(token)]
+      if (home) return next(home)
+      removeToken()
+      store.commit('LOGOUT')
     }
     return next()
   }
@@ -96,9 +112,10 @@ router.beforeEach((to, from, next) => {
     return next('/login')
   }
 
-  // 角色权限校验
+  // 角色权限校验（与首页跳转一致：JWT 可作后备，避免仅有 token、Vuex 未带 role 时误拦）
+  const effectiveRole = resolveRoleForHome(token) || store.getters.role
   const requiredRole = to.matched.find(r => r.meta.role)?.meta.role
-  if (requiredRole && store.getters.role !== requiredRole && store.getters.role !== 'admin') {
+  if (requiredRole && effectiveRole !== requiredRole && effectiveRole !== 'admin') {
     return next('/403')
   }
 

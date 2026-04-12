@@ -11,6 +11,7 @@
         <el-menu-item index="/user/diet/record"><i class="el-icon-notebook-2" />饮食记录</el-menu-item>
         <el-menu-item index="/user/courses"><i class="el-icon-date" />课程预约</el-menu-item>
         <el-menu-item index="/user/profile"><i class="el-icon-user" />个人主页</el-menu-item>
+        <el-menu-item index="/user/apply-coach"><i class="el-icon-s-custom" />申请成为教练</el-menu-item>
       </el-menu>
     </el-aside>
     <el-container>

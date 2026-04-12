@@ -50,7 +50,7 @@
 </template>
 
 <script>
-import { sendCode as apiSendCode, verifyCode as apiVerifyCode, register } from '../../api/auth'
+import { sendCode as apiSendCode, verifyCode as apiVerifyCode, register } from '@/api/auth'
 
 export default {
   name: 'Register',

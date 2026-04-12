@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import { publishArticle, getMyArticles } from '../../../api/diet'
+import { publishArticle, getMyArticles } from '@/api/diet'
 
 export default {
   name: 'ArticlePublish',

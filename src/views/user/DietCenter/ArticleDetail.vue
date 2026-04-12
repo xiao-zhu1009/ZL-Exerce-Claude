@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { getDietArticleDetail } from '../../../api/diet'
+import { getDietArticleDetail } from '@/api/diet'
 
 export default {
   name: 'ArticleDetail',

@@ -66,7 +66,7 @@
 </template>
 
 <script>
-import { getDietRecords, addDietRecord, deleteDietRecord, searchFoods } from '../../../api/diet'
+import { getDietRecords, addDietRecord, deleteDietRecord, searchFoods } from '@/api/diet'
 
 export default {
   name: 'DietRecord',
