@@ -5,12 +5,25 @@
       <div slot="header" style="font-size:20px;font-weight:bold">{{ action.title }}</div>
       <el-row :gutter="24">
         <el-col :span="14">
-          <!-- 视频区域：有 video_url 则播放，否则显示占位 -->
+          <!-- ── 媒体区域展示逻辑 ──────────────────────────────────────────
+               优先级：有视频 → 显示视频播放器（视频上方叠加封面图作为 poster）
+                       无视频但有封面图 → 只显示封面图
+                       都没有 → 显示暗色占位块
+               video 的 poster 属性：视频未播放时显示的预览图，
+               这里用封面图填充，让用户在点击播放前看到动作预览。
+          ──────────────────────────────────────────────────────────────── -->
           <video
             v-if="action.video_url"
             :src="mediaUrl(action.video_url)"
+            :poster="action.cover_img ? mediaUrl(action.cover_img) : ''"
             controls
             style="width:100%;border-radius:4px;background:#000;max-height:320px"
+          />
+          <el-image
+            v-else-if="action.cover_img"
+            :src="mediaUrl(action.cover_img)"
+            fit="cover"
+            style="width:100%;max-height:320px;border-radius:4px;display:block"
           />
           <div
             v-else

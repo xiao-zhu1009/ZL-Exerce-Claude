@@ -19,6 +19,12 @@ export function getAdminActions(params = {}) {
   return request.get('/admin/actions', { params })
 }
 
+// 获取单条动作完整详情（含 cover_img/video_url/steps/cautions），供管理员预览用
+// 复用用户端详情接口，待审核动作 status!=1 会返回 404，需后端放行（见下方说明）
+export function getActionDetail(id) {
+  return request.get(`/admin/actions/${id}/detail`)
+}
+
 export function reviewAction(id, data) {
   // data: { status: 1 } 通过 | { status: 2, reject_reason: '...' } 驳回
   return request.put(`/admin/actions/${id}/review`, data)
