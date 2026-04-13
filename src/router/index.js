@@ -52,7 +52,8 @@ const routes = [
       { path: 'diet/record', component: () => import('@/views/user/DietCenter/DietRecord.vue') },
       { path: 'courses', component: () => import('@/views/user/Course/index.vue') },
       { path: 'profile', component: () => import('@/views/user/Profile/index.vue') },
-      { path: 'apply-coach', component: () => import('@/views/user/ApplyCoach/index.vue') }
+      { path: 'apply-coach', component: () => import('@/views/user/ApplyCoach/index.vue') },
+      { path: 'training', component: () => import('@/views/user/Training/index.vue') }
     ]
   },
 

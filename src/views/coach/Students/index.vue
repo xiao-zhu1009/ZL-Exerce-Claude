@@ -28,9 +28,8 @@ export default {
     async fetchStudents() {
       this.loading = true
       try {
-        // TODO: 对接后端 GET /coach/students（仅返回该教练名下学员）
         const res = await getStudents()
-        this.students = res.data
+        this.students = res.data.data || []
       } finally { this.loading = false }
     }
   }

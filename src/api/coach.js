@@ -1,32 +1,24 @@
-// TODO: 对接后端时取消 request 注释，删除 mockResolve 返回
-// import request from '../utils/request'
-const mockResolve = data => Promise.resolve({ code: 200, msg: 'success', data })
+// src/api/coach.js
+// 教练端接口：学员管理、训练计划制定
+// getStudents         → GET  /coach/students
+// getStudentDetail    → GET  /coach/students/:id
+// createPlan          → POST /coach/training/plans
+// getStudentPlans     → GET  /coach/training/plans?student_id=
 
-const mockStudents = [
-  { id: 1, nickname: '张三', goal: '减脂', weight: 80, bmi: 26.1, body_fat: 24, last_workout: '2026-04-07' },
-  { id: 2, nickname: '李四', goal: '增肌', weight: 65, bmi: 21.3, body_fat: 15, last_workout: '2026-04-06' },
-  { id: 3, nickname: '王五', goal: '塑形', weight: 70, bmi: 22.9, body_fat: 18, last_workout: '2026-04-05' }
-]
+import request from '@/utils/request'
 
 export function getStudents() {
-  // TODO: return request.get('/coach/students')
-  return mockResolve(mockStudents)
+  return request.get('/coach/students')
 }
 
 export function getStudentDetail(id) {
-  // TODO: return request.get(`/coach/students/${id}`)
-  return mockResolve({
-    ...mockStudents.find(s => s.id === Number(id)) || mockStudents[0],
-    height: 175,
-    workout_records: [
-      { record_date: '2026-04-07', duration: 60, calories: 450 },
-      { record_date: '2026-04-05', duration: 45, calories: 320 }
-    ],
-    current_plan: { title: '12周减脂计划', goal: '减脂', start_date: '2026-03-01', end_date: '2026-05-31' }
-  })
+  return request.get(`/coach/students/${id}`)
 }
 
 export function createPlan(data) {
-  // TODO: return request.post('/coach/plan', data)
-  return mockResolve({ id: Date.now(), ...data })
+  return request.post('/coach/training/plans', data)
+}
+
+export function getStudentPlans(studentId) {
+  return request.get('/coach/training/plans', { params: { student_id: studentId } })
 }
