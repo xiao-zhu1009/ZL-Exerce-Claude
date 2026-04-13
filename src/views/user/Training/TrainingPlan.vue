@@ -17,12 +17,18 @@
       <el-empty v-if="!loading && plans.length === 0" description="暂无训练计划" />
 
       <div class="plan-list">
-        <el-card v-for="plan in plans" :key="plan.id" class="plan-card" shadow="hover">
+        <el-card
+          v-for="plan in plans" :key="plan.id"
+          class="plan-card" shadow="hover"
+          style="cursor:pointer"
+          @click.native="viewDetail(plan)"
+        >
           <div class="card-header">
             <span class="plan-title">{{ plan.title }}</span>
             <div style="display:flex;align-items:center;gap:6px">
-              <!-- 区分教练指定还是自建 -->
-              <el-tag v-if="plan.coach_id > 0" size="mini" type="warning">教练指定</el-tag>
+              <el-tag v-if="plan.coach_id > 0" size="mini" type="warning">
+                <i class="el-icon-user" /> {{ plan.coach_name || '教练指定' }}
+              </el-tag>
               <el-tag :type="statusType(plan.status)" size="small">{{ statusLabel(plan.status) }}</el-tag>
             </div>
           </div>
@@ -41,6 +47,59 @@
         </el-card>
       </div>
     </div>
+
+    <!-- 计划详情弹窗 -->
+    <el-dialog
+      :title="detailPlan ? detailPlan.title : '计划详情'"
+      :visible.sync="detailVisible"
+      width="560px"
+    >
+      <div v-if="detailPlan" v-loading="detailLoading">
+        <!-- 基本信息 -->
+        <el-descriptions :column="2" border size="small" style="margin-bottom:16px">
+          <el-descriptions-item label="训练目标">{{ detailPlan.goal }}</el-descriptions-item>
+          <el-descriptions-item label="状态">
+            <el-tag :type="statusType(detailPlan.status)" size="small">
+              {{ statusLabel(detailPlan.status) }}
+            </el-tag>
+          </el-descriptions-item>
+          <el-descriptions-item label="开始日期">{{ detailPlan.start_date }}</el-descriptions-item>
+          <el-descriptions-item label="结束日期">{{ detailPlan.end_date }}</el-descriptions-item>
+          <el-descriptions-item v-if="detailPlan.coach_id > 0" label="制定教练" :span="2">
+            <el-tag size="small" type="warning">{{ detailPlan.coach_name || '教练' }}</el-tag>
+          </el-descriptions-item>
+          <el-descriptions-item v-if="detailPlan.description" label="计划描述" :span="2">
+            {{ detailPlan.description }}
+          </el-descriptions-item>
+        </el-descriptions>
+
+        <!-- 每日训练安排 -->
+        <template v-if="detailPlan.content && detailPlan.content.days && detailPlan.content.days.length">
+          <div style="font-weight:600;margin-bottom:10px;color:#303133">每日训练安排</div>
+          <div
+            v-for="(day, idx) in detailPlan.content.days"
+            :key="idx"
+            class="day-detail-item"
+          >
+            <div class="day-detail-label">{{ day.label || ('Day ' + (idx + 1)) }}</div>
+            <div class="day-detail-content">{{ day.content || '休息' }}</div>
+          </div>
+        </template>
+
+        <!-- 旧格式兼容：content.text -->
+        <template v-else-if="detailPlan.content && detailPlan.content.text">
+          <div style="font-weight:600;margin-bottom:10px;color:#303133">训练内容</div>
+          <div style="white-space:pre-wrap;color:#606266;font-size:13px;line-height:1.8">
+            {{ detailPlan.content.text }}
+          </div>
+        </template>
+
+        <el-empty v-else description="暂无详细安排" :image-size="60" />
+      </div>
+      <div slot="footer">
+        <el-button @click="detailVisible = false">关闭</el-button>
+      </div>
+    </el-dialog>
 
     <!-- 新建计划弹窗 -->
     <el-dialog title="新建训练计划" :visible.sync="dialogVisible" width="460px" @close="resetForm">
@@ -65,7 +124,8 @@
             placeholder="选择日期" style="width:100%" />
         </el-form-item>
         <el-form-item label="计划描述">
-          <el-input v-model="form.description" type="textarea" :rows="3" placeholder="可选，描述计划目标和安排" />
+          <el-input v-model="form.description" type="textarea" :rows="3"
+            placeholder="可选，描述计划目标和安排" />
         </el-form-item>
       </el-form>
       <span slot="footer">
@@ -77,12 +137,12 @@
 </template>
 
 <script>
-import { getTrainingPlans, addTrainingPlan } from '@/api/training'
+import { getTrainingPlans, addTrainingPlan, getTrainingPlanDetail } from '@/api/training'
 
 const STATUS_MAP = {
   0: { label: '已终止', type: 'info' },
   1: { label: '进行中', type: 'success' },
-  2: { label: '已完成', type: '' }
+  2: { label: '已完成', type: '' },
 }
 
 export default {
@@ -92,6 +152,11 @@ export default {
       plans: [],
       loading: false,
       statusFilter: null,
+      // 详情弹窗
+      detailVisible: false,
+      detailLoading: false,
+      detailPlan: null,
+      // 新建弹窗
       dialogVisible: false,
       submitting: false,
       form: { title: '', goal: '', start_date: '', end_date: '', description: '' },
@@ -100,7 +165,7 @@ export default {
         goal:       [{ required: true, message: '请选择训练目标', trigger: 'change' }],
         start_date: [{ required: true, message: '请选择开始日期', trigger: 'change' }],
         end_date:   [{ required: true, message: '请选择结束日期', trigger: 'change' }],
-      }
+      },
     }
   },
   created() {
@@ -111,17 +176,26 @@ export default {
       this.loading = true
       try {
         const res = await getTrainingPlans(this.statusFilter)
-        this.plans = res.data.data || []
+        this.plans = res.data || []
       } finally {
         this.loading = false
       }
     },
-    openDialog() {
-      this.dialogVisible = true
+    async viewDetail(plan) {
+      this.detailPlan = plan   // 先用列表数据展示基本信息
+      this.detailVisible = true
+      this.detailLoading = true
+      try {
+        const res = await getTrainingPlanDetail(plan.id)
+        if (res.code === 200) this.detailPlan = res.data
+      } catch {
+        this.$message.error('加载详情失败')
+      } finally {
+        this.detailLoading = false
+      }
     },
-    resetForm() {
-      this.$refs.form && this.$refs.form.resetFields()
-    },
+    openDialog() { this.dialogVisible = true },
+    resetForm() { this.$refs.form && this.$refs.form.resetFields() },
     async handleSubmit() {
       await this.$refs.form.validate()
       if (this.form.end_date < this.form.start_date) {
@@ -133,6 +207,8 @@ export default {
         this.$message.success('计划创建成功')
         this.dialogVisible = false
         this.fetchPlans()
+      } catch (e) {
+        this.$message.error(e?.response?.data?.message || '创建失败')
       } finally {
         this.submitting = false
       }
@@ -146,8 +222,8 @@ export default {
       if (now <= start) return 0
       if (now >= end)   return 100
       return Math.round(((now - start) / (end - start)) * 100)
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -163,12 +239,35 @@ export default {
 .card-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 10px;
+  gap: 8px;
 }
-.plan-title { font-weight: 600; font-size: 15px; }
+.plan-title { font-weight: 600; font-size: 15px; flex: 1; }
 .card-meta { display: flex; flex-direction: column; gap: 4px; color: #606266; font-size: 13px; }
-.plan-desc { margin: 10px 0 0; color: #909399; font-size: 13px; line-height: 1.5; }
+.plan-desc { margin: 10px 0 0; color: #909399; font-size: 13px; line-height: 1.5;
+  overflow: hidden; text-overflow: ellipsis; display: -webkit-box;
+  -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .progress-wrap { margin-top: 12px; display: flex; align-items: center; gap: 8px; }
 .progress-label { font-size: 12px; color: #909399; white-space: nowrap; }
+/* 详情弹窗每日安排 */
+.day-detail-item {
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  background: #f8f9fa;
+  border-radius: 4px;
+  border-left: 3px solid #409EFF;
+}
+.day-detail-label {
+  font-weight: 600;
+  font-size: 13px;
+  color: #303133;
+  margin-bottom: 6px;
+}
+.day-detail-content {
+  font-size: 13px;
+  color: #606266;
+  line-height: 1.7;
+  white-space: pre-wrap;
+}
 </style>

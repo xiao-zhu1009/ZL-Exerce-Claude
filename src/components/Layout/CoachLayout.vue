@@ -10,6 +10,7 @@
         <el-menu-item index="/coach/publish/action"><i class="el-icon-video-camera" />动作投稿</el-menu-item>
         <el-menu-item index="/coach/publish/article"><i class="el-icon-edit-outline" />文章投稿</el-menu-item>
         <el-menu-item index="/coach/foods"><i class="el-icon-food" />食物库投稿</el-menu-item>
+        <el-menu-item index="/coach/profile"><i class="el-icon-user-solid" />个人主页</el-menu-item>
       </el-menu>
     </el-aside>
     <el-container>

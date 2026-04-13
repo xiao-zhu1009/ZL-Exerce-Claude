@@ -12,6 +12,7 @@
         <el-menu-item index="/admin/review/courses"><i class="el-icon-date" />课程审核</el-menu-item>
         <el-menu-item index="/admin/review/foods"><i class="el-icon-food" />食物库审核</el-menu-item>
         <el-menu-item index="/admin/coach-apply"><i class="el-icon-s-custom" />教练申请</el-menu-item>
+        <el-menu-item index="/admin/bind-monitor"><i class="el-icon-connection" />绑定监管</el-menu-item>
       </el-menu>
     </el-aside>
     <el-container>

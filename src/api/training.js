@@ -23,7 +23,11 @@ export function deleteWorkoutRecord(id) {
 }
 
 export function getTrainingPlans(status) {
-  return request.get('/training/plans', { params: status !== undefined ? { status } : {} })
+  return request.get('/training/plans', { params: status !== undefined && status !== null ? { status } : {} })
+}
+
+export function getTrainingPlanDetail(id) {
+  return request.get(`/training/plans/${id}`)
 }
 
 export function addTrainingPlan(data) {

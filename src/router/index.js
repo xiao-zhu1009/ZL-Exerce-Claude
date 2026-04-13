@@ -53,7 +53,8 @@ const routes = [
       { path: 'courses', component: () => import('@/views/user/Course/index.vue') },
       { path: 'profile', component: () => import('@/views/user/Profile/index.vue') },
       { path: 'apply-coach', component: () => import('@/views/user/ApplyCoach/index.vue') },
-      { path: 'training', component: () => import('@/views/user/Training/index.vue') }
+      { path: 'training', component: () => import('@/views/user/Training/index.vue') },
+      { path: 'coach-zone', component: () => import('@/views/user/CoachZone/index.vue') }
     ]
   },
 
@@ -69,7 +70,8 @@ const routes = [
       { path: 'courses', component: () => import('@/views/coach/CourseManage/index.vue') },
       { path: 'publish/action', component: () => import('@/views/coach/ContentPublish/ActionPublish.vue') },
       { path: 'publish/article', component: () => import('@/views/coach/ContentPublish/ArticlePublish.vue') },
-      { path: 'foods', component: () => import('@/views/coach/FoodSubmit/index.vue') }
+      { path: 'foods', component: () => import('@/views/coach/FoodSubmit/index.vue') },
+      { path: 'profile', component: () => import('@/views/coach/Profile/index.vue') }
     ]
   },
 
@@ -86,7 +88,8 @@ const routes = [
       { path: 'review/articles', component: () => import('@/views/admin/ContentReview/ArticleReview.vue') },
       { path: 'review/courses', component: () => import('@/views/admin/ContentReview/CourseReview.vue') },
       { path: 'review/foods', component: () => import('@/views/admin/ContentReview/FoodReview.vue') },
-      { path: 'coach-apply', component: () => import('@/views/admin/CoachApply/index.vue') }
+      { path: 'coach-apply', component: () => import('@/views/admin/CoachApply/index.vue') },
+      { path: 'bind-monitor', component: () => import('@/views/admin/BindMonitor/index.vue') }
     ]
   }
 ]
