@@ -7,7 +7,8 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     token: getToken() || '',
-    user: getUser() || null
+    user: getUser() || null,
+    reservationCount: 0  // 用户有效预约数（待审批+已确认），用于侧边栏红点
   },
   getters: {
     isLoggedIn: state => !!state.token,
@@ -16,9 +17,11 @@ export default new Vuex.Store({
   mutations: {
     SET_TOKEN(state, token) { state.token = token; setToken(token) },
     SET_USER(state, user) { state.user = user; setUser(user) },
+    SET_RESERVATION_COUNT(state, count) { state.reservationCount = count },
     LOGOUT(state) {
       state.token = ''
       state.user = null
+      state.reservationCount = 0
       removeToken()
       removeUser()
     }

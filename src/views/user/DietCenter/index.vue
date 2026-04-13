@@ -23,22 +23,38 @@
       <el-col :span="8" v-for="article in list" :key="article.id" style="margin-bottom:16px">
         <el-card class="article-card" @click.native="$router.push(`/user/diet/articles/${article.id}`)">
           <div class="cover">
-            <span class="cover-placeholder">{{ article.category }}</span>
+            <img v-if="article.cover_img" :src="imgUrl(article.cover_img)" class="cover-img" />
+            <span v-else class="cover-placeholder">{{ article.category }}</span>
           </div>
           <div style="padding:12px">
             <div style="font-weight:bold;font-size:15px;margin-bottom:8px">{{ article.title }}</div>
             <el-tag size="mini">{{ article.category }}</el-tag>
             <div style="color:#999;font-size:12px;margin-top:8px">{{ article.view_count }} 次浏览 · {{ article.created_at }}</div>
+            <div v-if="article.summary" style="color:#666;font-size:13px;margin-top:6px;line-height:1.5" class="summary">{{ article.summary }}</div>
           </div>
         </el-card>
       </el-col>
     </el-row>
+
     <el-empty v-if="!loading && list.length === 0" description="暂无文章" />
+
+    <div style="text-align:center;margin-top:16px" v-if="total > filters.page_size">
+      <el-pagination
+        background
+        layout="prev, pager, next"
+        :total="total"
+        :page-size="filters.page_size"
+        :current-page="filters.page"
+        @current-change="onPageChange"
+      />
+    </div>
   </div>
 </template>
 
 <script>
 import { getDietArticles } from '@/api/diet'
+
+const BASE = process.env.VUE_APP_API_BASE || 'http://127.0.0.1:8009/api'
 
 export default {
   name: 'DietCenter',
@@ -46,7 +62,8 @@ export default {
     return {
       loading: false,
       list: [],
-      filters: { category: '', keyword: '' },
+      total: 0,
+      filters: { category: '', keyword: '', page: 1, page_size: 12 },
       categories: ['增肌餐', '减脂餐', '均衡饮食', '补剂知识']
     }
   },
@@ -55,11 +72,21 @@ export default {
     async fetchList() {
       this.loading = true
       try {
-        // TODO: 对接后端 GET /diet/articles?category=&keyword=
-        const res = await getDietArticles(this.filters)
+        const params = {}
+        if (this.filters.category) params.category = this.filters.category
+        if (this.filters.keyword) params.keyword = this.filters.keyword
+        params.page = this.filters.page
+        params.page_size = this.filters.page_size
+        const res = await getDietArticles(params)
         this.list = res.data.list
+        this.total = res.data.total
       } finally { this.loading = false }
-    }
+    },
+    onPageChange(page) {
+      this.filters.page = page
+      this.fetchList()
+    },
+    imgUrl(path) { return `${BASE}/static/${path}` }
   }
 }
 </script>
@@ -67,6 +94,8 @@ export default {
 <style scoped>
 .article-card { cursor: pointer; transition: box-shadow .2s; }
 .article-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.12); }
-.cover { height: 100px; background: #f0f2f5; display: flex; align-items: center; justify-content: center; border-radius: 4px; }
+.cover { height: 120px; background: #f0f2f5; display: flex; align-items: center; justify-content: center; border-radius: 4px; overflow: hidden; }
+.cover-img { width: 100%; height: 100%; object-fit: cover; }
 .cover-placeholder { font-size: 16px; color: #999; }
+.summary { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 </style>

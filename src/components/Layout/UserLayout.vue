@@ -44,6 +44,9 @@ export default {
     user() {
       return this.$store.state.user
     },
+    reservationCount() {
+      return this.$store.state.reservationCount
+    },
     /** 与个人主页一致：有 URL 则显示图，否则用插槽默认图标；随登录 / Profile 内 syncUserToStore 更新 */
     headerAvatar() {
       const a = (this.user && this.user.avatar ? String(this.user.avatar) : '').trim()
@@ -110,7 +113,11 @@ export default {
   font-size: 12px;
   color: #909399;
 }
-.user-menu-trigger:hover .user-menu-caret {
-  color: #409eff;
+.menu-badge {
+  line-height: 1;
+}
+.menu-badge >>> .el-badge__content {
+  top: 2px;
+  right: -6px;
 }
 </style>

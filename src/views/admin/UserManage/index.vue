@@ -16,21 +16,21 @@
       </el-row>
     </el-card>
 
-    <el-table :data="list" v-loading="loading" border>
-      <el-table-column prop="username" label="用户名" />
-      <el-table-column prop="nickname" label="昵称" />
-      <el-table-column label="角色" width="90">
+    <el-table :data="list" v-loading="loading" border fit>
+      <el-table-column prop="username" label="用户名" min-width="110" />
+      <el-table-column prop="nickname" label="昵称" min-width="110" />
+      <el-table-column label="角色" min-width="80">
         <template slot-scope="scope">
           <el-tag :type="roleType(scope.row.role)" size="small">{{ roleLabel(scope.row.role) }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="状态" width="80">
+      <el-table-column label="状态" min-width="70">
         <template slot-scope="scope">
           <el-tag :type="scope.row.status ? 'success' : 'danger'" size="small">{{ scope.row.status ? '正常' : '封禁' }}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="created_at" label="注册时间" width="120" />
-      <el-table-column label="操作" width="220">
+      <el-table-column prop="created_at" label="注册时间" min-width="150" />
+      <el-table-column label="操作" min-width="200">
         <template slot-scope="scope">
           <el-button size="mini" :type="scope.row.status ? 'danger' : 'success'" @click="toggleStatus(scope.row)">
             {{ scope.row.status ? '封禁' : '解封' }}

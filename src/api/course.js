@@ -1,49 +1,94 @@
-// TODO: 对接后端时取消 request 注释，删除 mockResolve 返回
-// import request from '../utils/request'
-const mockResolve = data => Promise.resolve({ code: 200, msg: 'success', data })
+// src/api/course.js
+// 课程模块接口：用户端浏览预约、教练端课程管理与预约审批、管理员端审核
+// getCourses              → GET    /courses                        用户端课程列表
+// getCourseDetail         → GET    /courses/{id}                   课程详情
+// reserveCourse           → POST   /courses/{id}/reserve           申请预约
+// getMyReservations       → GET    /courses/my-reservations        我的预约列表
+// cancelReservation       → DELETE /courses/reservations/{id}      取消预约
+// uploadCourseCover       → POST   /coach/courses/upload/cover     教练上传封面
+// publishCourse           → POST   /coach/courses                  教练发布课程
+// getMyCourses            → GET    /coach/courses                  教练我的课程
+// updateCourse            → PUT    /coach/courses/{id}             教练修改被驳回课程
+// deleteCourse            → DELETE /coach/courses/{id}             教练删除课程
+// getCourseReservations   → GET    /coach/courses/{id}/reservations 课程预约申请列表
+// approveReservation      → PUT    /coach/courses/reservations/{id} 教练审批预约
+// getAdminCourses         → GET    /admin/courses                  管理员课程列表
+// getAdminCourseDetail    → GET    /admin/courses/{id}/detail      管理员课程详情
+// reviewCourse            → PUT    /admin/courses/{id}/review      管理员审核
+// offlineCourse           → PUT    /admin/courses/{id}/offline     管理员下架
 
-const mockCourses = [
-  { id: 1, title: '燃脂塑形课', category: '有氧', difficulty: 2, max_people: 10, enrolled: 7, price: 99, start_time: '2026-04-10 09:00', coach_name: '王教练', status: 1 },
-  { id: 2, title: '力量基础课', category: '力量', difficulty: 1, max_people: 8, enrolled: 8, price: 120, start_time: '2026-04-11 14:00', coach_name: '王教练', status: 1 },
-  { id: 3, title: '瑜伽放松课', category: '瑜伽', difficulty: 1, max_people: 12, enrolled: 5, price: 80, start_time: '2026-04-12 10:00', coach_name: '李教练', status: 1 }
-]
+import request from '@/utils/request'
+
+// ── 用户端 ────────────────────────────────────────────────────────────────────
 
 export function getCourses(params = {}) {
-  // TODO: return request.get('/courses', { params })
-  return mockResolve({ list: mockCourses, total: mockCourses.length })
+  return request.get('/courses', { params })
+}
+
+export function getCourseDetail(id) {
+  return request.get(`/courses/${id}`)
 }
 
 export function reserveCourse(courseId) {
-  // TODO: return request.post('/reservations', { course_id: courseId })
-  return mockResolve({ id: Date.now(), course_id: courseId, status: 0 })
-}
-
-export function cancelReservation(id) {
-  // TODO: return request.delete(`/reservations/${id}`)
-  return mockResolve(null)
+  return request.post(`/courses/${courseId}/reserve`)
 }
 
 export function getMyReservations() {
-  // TODO: return request.get('/reservations/mine')
-  return mockResolve([{ ...mockCourses[0], reservation_id: 1, status: 1 }])
+  return request.get('/courses/my-reservations')
+}
+
+export function cancelReservation(reservationId) {
+  return request.delete(`/courses/reservations/${reservationId}`)
+}
+
+// ── 教练端 ────────────────────────────────────────────────────────────────────
+
+export function uploadCourseCover(file) {
+  const fd = new FormData()
+  fd.append('file', file)
+  return request.post('/coach/courses/upload/cover', fd)
 }
 
 export function publishCourse(data) {
-  // TODO: return request.post('/courses', data)
-  return mockResolve({ id: Date.now(), ...data, enrolled: 0 })
-}
-
-export function updateCourse(id, data) {
-  // TODO: return request.put(`/courses/${id}`, data)
-  return mockResolve({ id, ...data })
-}
-
-export function toggleCourseStatus(id, status) {
-  // TODO: return request.put(`/courses/${id}/status`, { status })
-  return mockResolve(null)
+  return request.post('/coach/courses', data)
 }
 
 export function getMyCourses() {
-  // TODO: return request.get('/courses/mine')
-  return mockResolve(mockCourses.slice(0, 2))
+  return request.get('/coach/courses')
+}
+
+export function updateCourse(id, data) {
+  return request.put(`/coach/courses/${id}`, data)
+}
+
+export function deleteCourse(id) {
+  return request.delete(`/coach/courses/${id}`)
+}
+
+export function getCourseReservations(courseId) {
+  return request.get(`/coach/courses/${courseId}/reservations`)
+}
+
+// data: { status: 2 } 确认 | { status: 3, cancel_reason: '...' } 拒绝
+export function approveReservation(reservationId, data) {
+  return request.put(`/coach/courses/reservations/${reservationId}`, data)
+}
+
+// ── 管理员端 ──────────────────────────────────────────────────────────────────
+
+export function getAdminCourses(params = {}) {
+  return request.get('/admin/courses', { params })
+}
+
+export function getAdminCourseDetail(id) {
+  return request.get(`/admin/courses/${id}/detail`)
+}
+
+// data: { status: 1 } 通过 | { status: 4, reject_reason: '...' } 驳回
+export function reviewCourse(id, data) {
+  return request.put(`/admin/courses/${id}/review`, data)
+}
+
+export function offlineCourse(id) {
+  return request.put(`/admin/courses/${id}/offline`)
 }

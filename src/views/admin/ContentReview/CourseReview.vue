@@ -1,23 +1,27 @@
 <template>
   <div>
-    <h2 style="margin-bottom:20px">文章审核</h2>
+    <h2 style="margin-bottom:20px">课程审核</h2>
 
     <!-- 状态筛选 -->
     <el-card style="margin-bottom:16px">
       <el-radio-group v-model="filterStatus" @change="fetchList">
         <el-radio-button :label="null">全部</el-radio-button>
         <el-radio-button :label="0">待审核</el-radio-button>
-        <el-radio-button :label="1">已上线</el-radio-button>
-        <el-radio-button :label="2">已驳回</el-radio-button>
-        <el-radio-button :label="3">已下架</el-radio-button>
+        <el-radio-button :label="1">招募中</el-radio-button>
+        <el-radio-button :label="2">满员</el-radio-button>
+        <el-radio-button :label="4">已驳回</el-radio-button>
+        <el-radio-button :label="5">已下架</el-radio-button>
       </el-radio-group>
     </el-card>
 
     <el-table :data="list" v-loading="loading" border fit>
-      <el-table-column prop="title" label="文章标题" min-width="160" show-overflow-tooltip />
-      <el-table-column prop="category" label="分类" min-width="80" />
-      <el-table-column prop="author_name" label="投稿教练" min-width="90" />
-      <el-table-column prop="created_at" label="投稿时间" min-width="150" />
+      <el-table-column prop="title" label="课程名称" min-width="160" show-overflow-tooltip />
+      <el-table-column prop="category" label="类型" min-width="70" />
+      <el-table-column prop="coach_name" label="教练" min-width="90" />
+      <el-table-column prop="start_time" label="开始时间" min-width="150" />
+      <el-table-column label="名额" min-width="70">
+        <template slot-scope="scope">{{ scope.row.enrolled }}/{{ scope.row.max_people }}</template>
+      </el-table-column>
       <el-table-column label="状态" min-width="80">
         <template slot-scope="scope">
           <el-tag :type="statusType(scope.row.status)" size="small">{{ statusLabel(scope.row.status) }}</el-tag>
@@ -28,7 +32,7 @@
           <el-button size="mini" @click="preview(scope.row)">预览</el-button>
           <el-button v-if="scope.row.status === 0" size="mini" type="success" @click="approve(scope.row)">通过</el-button>
           <el-button v-if="scope.row.status === 0" size="mini" type="danger" @click="openReject(scope.row)">驳回</el-button>
-          <el-button v-if="scope.row.status === 1" size="mini" type="warning" @click="offline(scope.row)">下架</el-button>
+          <el-button v-if="scope.row.status === 1 || scope.row.status === 2" size="mini" type="warning" @click="offline(scope.row)">下架</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -46,28 +50,35 @@
       </div>
     </el-dialog>
 
-    <!-- 文章预览弹窗 -->
-    <el-dialog :title="previewData.title" :visible.sync="previewVisible" width="700px">
+    <!-- 课程预览弹窗 -->
+    <el-dialog :title="previewData.title || '课程详情'" :visible.sync="previewVisible" width="600px">
       <div v-loading="previewLoading">
-        <div style="margin-bottom:12px">
-          <el-tag size="small">{{ previewData.category }}</el-tag>
-          <span style="color:#999;font-size:13px;margin-left:12px">{{ previewData.author_name }} · {{ previewData.created_at }}</span>
-        </div>
         <img v-if="previewData.cover_img" :src="imgUrl(previewData.cover_img)" style="width:100%;max-height:200px;object-fit:cover;border-radius:4px;margin-bottom:12px" />
-        <p v-if="previewData.summary" style="color:#666;margin-bottom:12px">{{ previewData.summary }}</p>
-        <div class="article-content" v-html="previewData.content" />
+        <el-descriptions :column="2" border size="small">
+          <el-descriptions-item label="类型">{{ previewData.category }}</el-descriptions-item>
+          <el-descriptions-item label="难度">{{ ['', '初级', '中级', '高级'][previewData.difficulty] }}</el-descriptions-item>
+          <el-descriptions-item label="教练">{{ previewData.coach_name }}</el-descriptions-item>
+          <el-descriptions-item label="价格">{{ previewData.price === '0.00' ? '免费' : '¥' + previewData.price }}</el-descriptions-item>
+          <el-descriptions-item label="开始时间">{{ previewData.start_time }}</el-descriptions-item>
+          <el-descriptions-item label="结束时间">{{ previewData.end_time || '未设置' }}</el-descriptions-item>
+          <el-descriptions-item label="地点" :span="2">{{ previewData.location || '未设置' }}</el-descriptions-item>
+          <el-descriptions-item label="名额">{{ previewData.enrolled }}/{{ previewData.max_people }}</el-descriptions-item>
+          <el-descriptions-item label="状态">{{ statusLabel(previewData.status) }}</el-descriptions-item>
+          <el-descriptions-item v-if="previewData.reject_reason" label="驳回原因" :span="2">{{ previewData.reject_reason }}</el-descriptions-item>
+          <el-descriptions-item v-if="previewData.description" label="课程描述" :span="2">{{ previewData.description }}</el-descriptions-item>
+        </el-descriptions>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { getAdminArticles, getArticleDetail, reviewArticle, offlineArticle } from '@/api/admin'
+import { getAdminCourses, getAdminCourseDetail, reviewCourse, offlineCourse } from '@/api/course'
 
 const BASE = process.env.VUE_APP_API_BASE || 'http://127.0.0.1:8009/api'
 
 export default {
-  name: 'ArticleReview',
+  name: 'CourseReview',
   data() {
     return {
       loading: false,
@@ -76,12 +87,10 @@ export default {
       page: 1,
       pageSize: 20,
       filterStatus: null,
-      // 驳回
       rejectVisible: false,
       rejectReason: '',
       currentId: null,
       operating: false,
-      // 预览
       previewVisible: false,
       previewLoading: false,
       previewData: {}
@@ -94,7 +103,7 @@ export default {
       try {
         const params = { page: this.page, page_size: this.pageSize }
         if (this.filterStatus !== null) params.status = this.filterStatus
-        const res = await getAdminArticles(params)
+        const res = await getAdminCourses(params)
         this.list = res.data.list
         this.total = res.data.total
       } finally { this.loading = false }
@@ -103,8 +112,8 @@ export default {
     onPageChange(p) { this.page = p; this.fetchList() },
 
     async approve(row) {
-      await this.$confirm(`确认通过文章《${row.title}》？`, '提示', { type: 'success' })
-      const res = await reviewArticle(row.id, { status: 1 })
+      await this.$confirm(`确认通过课程《${row.title}》？`, '提示', { type: 'success' })
+      const res = await reviewCourse(row.id, { status: 1 })
       if (res.code === 200) { this.$message.success('已通过'); this.fetchList() }
       else this.$message.error(res.message || '操作失败')
     },
@@ -115,7 +124,7 @@ export default {
       if (!this.rejectReason.trim()) return this.$message.warning('请填写驳回原因')
       this.operating = true
       try {
-        const res = await reviewArticle(this.currentId, { status: 2, reject_reason: this.rejectReason })
+        const res = await reviewCourse(this.currentId, { status: 4, reject_reason: this.rejectReason })
         if (res.code === 200) {
           this.$message.success('已驳回')
           this.rejectVisible = false
@@ -127,8 +136,8 @@ export default {
     },
 
     async offline(row) {
-      await this.$confirm(`确认下架文章《${row.title}》？`, '提示', { type: 'warning' })
-      const res = await offlineArticle(row.id)
+      await this.$confirm(`确认下架课程《${row.title}》？`, '提示', { type: 'warning' })
+      const res = await offlineCourse(row.id)
       if (res.code === 200) { this.$message.success('已下架'); this.fetchList() }
       else this.$message.error(res.message || '操作失败')
     },
@@ -138,19 +147,14 @@ export default {
       this.previewVisible = true
       this.previewLoading = true
       try {
-        const res = await getArticleDetail(row.id)
+        const res = await getAdminCourseDetail(row.id)
         if (res.code === 200) this.previewData = res.data
       } finally { this.previewLoading = false }
     },
 
     imgUrl(path) { return `${BASE}/static/${path}` },
-    statusLabel(s) { return ['待审核', '已上线', '已驳回', '已下架'][s] ?? '未知' },
-    statusType(s) { return ['warning', 'success', 'danger', 'info'][s] ?? '' }
+    statusLabel(s) { return ['待审核', '招募中', '满员', '已结束', '已驳回', '已下架'][s] ?? '未知' },
+    statusType(s) { return ['warning', 'success', 'primary', 'info', 'danger', 'info'][s] ?? '' }
   }
 }
 </script>
-
-<style scoped>
-.article-content { line-height: 1.8; color: #333; }
-.article-content img { max-width: 100%; }
-</style>

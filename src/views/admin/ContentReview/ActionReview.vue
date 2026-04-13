@@ -11,15 +11,15 @@
     </el-tabs>
 
     <el-table :data="list" v-loading="loading" style="width: 100%" fit border>
-      <el-table-column prop="title" label="动作名称" min-width="120" />
-      <el-table-column prop="body_part" label="部位" min-width="120" />
-      <el-table-column prop="category" label="类型" min-width="120" />
-      <el-table-column label="难度" min-width="120">
+      <el-table-column prop="title" label="动作名称" min-width="130" show-overflow-tooltip />
+      <el-table-column prop="body_part" label="部位" min-width="80" />
+      <el-table-column prop="category" label="类型" min-width="80" />
+      <el-table-column label="难度" min-width="70">
         <template slot-scope="scope">{{ ['', '初级', '中级', '高级'][scope.row.difficulty] }}</template>
       </el-table-column>
-      <el-table-column prop="author_name" label="投稿教练" min-width="120" />
-      <el-table-column prop="created_at" label="投稿时间" min-width="120" />
-      <el-table-column label="操作" min-width="250">
+      <el-table-column prop="author_name" label="投稿教练" min-width="90" />
+      <el-table-column prop="created_at" label="投稿时间" min-width="150" />
+      <el-table-column label="操作" min-width="200">
         <template slot-scope="scope">
           <el-button size="mini" @click="openPreview(scope.row)">预览</el-button>
           <!-- 待审核：通过 / 驳回 -->

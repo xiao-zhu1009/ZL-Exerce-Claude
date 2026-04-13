@@ -82,6 +82,7 @@ const routes = [
       { path: 'users', component: () => import('@/views/admin/UserManage/index.vue') },
       { path: 'review/actions', component: () => import('@/views/admin/ContentReview/ActionReview.vue') },
       { path: 'review/articles', component: () => import('@/views/admin/ContentReview/ArticleReview.vue') },
+      { path: 'review/courses', component: () => import('@/views/admin/ContentReview/CourseReview.vue') },
       { path: 'coach-apply', component: () => import('@/views/admin/CoachApply/index.vue') }
     ]
   }

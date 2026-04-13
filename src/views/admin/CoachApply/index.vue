@@ -9,13 +9,13 @@
       <el-tab-pane label="已拒绝" name="rejected" />
     </el-tabs>
 
-    <el-table :data="list" border style="width:100%">
-      <el-table-column prop="username" label="账号" width="120" />
-      <el-table-column prop="nickname" label="昵称" width="120" />
-      <el-table-column prop="reason" label="申请说明" show-overflow-tooltip />
-      <el-table-column prop="reject_reason" label="拒绝原因" show-overflow-tooltip />
-      <el-table-column prop="created_at" label="申请时间" width="180" />
-      <el-table-column label="操作" width="160" v-if="activeTab === 'pending'">
+    <el-table :data="list" border fit style="width:100%">
+      <el-table-column prop="username" label="账号" min-width="100" />
+      <el-table-column prop="nickname" label="昵称" min-width="100" />
+      <el-table-column prop="reason" label="申请说明" min-width="160" show-overflow-tooltip />
+      <el-table-column prop="reject_reason" label="拒绝原因" min-width="160" show-overflow-tooltip />
+      <el-table-column prop="created_at" label="申请时间" min-width="150" />
+      <el-table-column label="操作" min-width="130" v-if="activeTab === 'pending'">
         <template slot-scope="{ row }">
           <el-button size="mini" type="success" @click="approve(row)">通过</el-button>
           <el-button size="mini" type="danger" @click="openReject(row)">拒绝</el-button>

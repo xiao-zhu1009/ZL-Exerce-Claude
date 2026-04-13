@@ -1,13 +1,57 @@
-// TODO: 对接后端时取消 request 注释，删除 mockResolve 返回
-// import request from '../utils/request'
-const mockResolve = data => Promise.resolve({ code: 200, msg: 'success', data })
+// src/api/diet.js
+// 饮食模块接口：用户端文章浏览、教练端文章投稿管理、饮食记录（食物搜索/记录增删）
+// getDietArticles        → GET    /diet/articles                用户端文章列表（分类+关键词+分页）
+// getDietArticleDetail   → GET    /diet/articles/{id}           用户端文章详情（触发浏览数+1）
+// uploadArticleCover     → POST   /coach/diet/articles/upload/cover  教练上传封面图
+// publishArticle         → POST   /coach/diet/articles          教练发布新文章
+// getMyArticles          → GET    /coach/diet/articles          教练查自己的投稿
+// updateMyArticle        → PUT    /coach/diet/articles/{id}     教练修改被驳回的文章
+// deleteMyArticle        → DELETE /coach/diet/articles/{id}     教练删除待审核/已驳回的文章
+// searchFoods / getDietRecords / addDietRecord / deleteDietRecord → 饮食记录相关（仍为 mock，待后续对接）
 
-const mockArticles = [
-  { id: 1, title: '增肌期饮食全攻略', category: '增肌餐', cover_img: '', view_count: 520, created_at: '2026-03-10', content: '<p>增肌期需要保持热量盈余，蛋白质摄入建议每公斤体重 1.6-2.2g。</p><p>优质蛋白来源：鸡胸肉、鸡蛋、牛肉、乳清蛋白。</p>' },
-  { id: 2, title: '减脂期如何控制饮食', category: '减脂餐', cover_img: '', view_count: 680, created_at: '2026-03-15', content: '<p>减脂期热量缺口建议控制在 300-500kcal/天，避免过度节食导致肌肉流失。</p>' },
-  { id: 3, title: '运动前后吃什么最好', category: '均衡饮食', cover_img: '', view_count: 340, created_at: '2026-03-20', content: '<p>运动前 1-2 小时：复合碳水 + 少量蛋白质。运动后 30 分钟内：快速蛋白质 + 简单碳水。</p>' },
-  { id: 4, title: '肌酸补剂使用指南', category: '补剂知识', cover_img: '', view_count: 290, created_at: '2026-04-01', content: '<p>肌酸是目前研究最充分的运动补剂之一，每日 3-5g 维持剂量即可。</p>' }
-]
+import request from '@/utils/request'
+
+// ── 用户端 ────────────────────────────────────────────────────────────────────
+
+export function getDietArticles(params = {}) {
+  return request.get('/diet/articles', { params })
+}
+
+export function getDietArticleDetail(id) {
+  return request.get(`/diet/articles/${id}`)
+}
+
+// ── 教练端 ────────────────────────────────────────────────────────────────────
+
+/**
+ * 上传文章封面图。
+ * 后端返回 { path: "diet_covers/xxx.jpg" }，前端存入 form.cover_img。
+ */
+export function uploadArticleCover(file) {
+  const fd = new FormData()
+  fd.append('file', file)
+  return request.post('/coach/diet/articles/upload/cover', fd)
+}
+
+export function publishArticle(data) {
+  return request.post('/coach/diet/articles', data)
+}
+
+export function getMyArticles() {
+  return request.get('/coach/diet/articles')
+}
+
+export function updateMyArticle(id, data) {
+  return request.put(`/coach/diet/articles/${id}`, data)
+}
+
+export function deleteMyArticle(id) {
+  return request.delete(`/coach/diet/articles/${id}`)
+}
+
+// ── 饮食记录（待后续对接，暂保留 mock）────────────────────────────────────────
+
+const mockResolve = data => Promise.resolve({ code: 200, message: 'success', data })
 
 const mockFoods = [
   { id: 1, name: '鸡胸肉(100g)', calories: 165, protein: 31, carbs: 0, fat: 3.6 },
@@ -18,23 +62,9 @@ const mockFoods = [
   { id: 6, name: '燕麦(100g)', calories: 389, protein: 16.9, carbs: 66.3, fat: 6.9 }
 ]
 
-export function getDietArticles(params = {}) {
-  // TODO: return request.get('/diet/articles', { params })
-  let list = [...mockArticles]
-  if (params.category) list = list.filter(a => a.category === params.category)
-  if (params.keyword) list = list.filter(a => a.title.includes(params.keyword))
-  return mockResolve({ list, total: list.length })
-}
-
-export function getDietArticleDetail(id) {
-  // TODO: return request.get(`/diet/articles/${id}`)
-  return mockResolve(mockArticles.find(a => a.id === Number(id)) || mockArticles[0])
-}
-
 export function searchFoods(keyword) {
   // TODO: return request.get('/diet/foods/search', { params: { keyword } })
-  const list = mockFoods.filter(f => f.name.includes(keyword))
-  return mockResolve(list)
+  return mockResolve(mockFoods.filter(f => f.name.includes(keyword)))
 }
 
 export function getDietRecords(date) {
@@ -54,14 +84,4 @@ export function addDietRecord(data) {
 export function deleteDietRecord(id) {
   // TODO: return request.delete(`/diet/records/${id}`)
   return mockResolve(null)
-}
-
-export function publishArticle(data) {
-  // TODO: return request.post('/diet/articles', data)
-  return mockResolve({ id: Date.now(), ...data, status: 0 })
-}
-
-export function getMyArticles() {
-  // TODO: return request.get('/diet/articles/mine')
-  return mockResolve(mockArticles.slice(0, 2).map(a => ({ ...a, status: 1 })))
 }

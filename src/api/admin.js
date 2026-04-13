@@ -34,17 +34,24 @@ export function offlineAction(id) {
   return request.put(`/admin/actions/${id}/offline`)
 }
 
-export function getPendingArticles() {
-  // TODO: return request.get('/admin/diet/pending')
-  return mockResolve([
-    { id: 20, title: '备赛期饮食方案', category: '增肌餐', author_name: '王教练', created_at: '2026-04-07', status: 0 },
-    { id: 21, title: '低碳饮食入门', category: '减脂餐', author_name: '李教练', created_at: '2026-04-06', status: 0 }
-  ])
+// 获取文章列表，status: 0待审核 1已上线 2已驳回 3已下架，不传则返回全部
+export function getAdminArticles(params = {}) {
+  return request.get('/admin/diet/articles', { params })
 }
 
+// 获取单条文章完整详情（不限状态，供管理员预览）
+export function getArticleDetail(id) {
+  return request.get(`/admin/diet/articles/${id}/detail`)
+}
+
+// 审核文章：{ status: 1 } 通过 | { status: 2, reject_reason: '...' } 驳回
 export function reviewArticle(id, data) {
-  // TODO: return request.put(`/admin/diet/${id}/review`, data)
-  return mockResolve(null)
+  return request.put(`/admin/diet/articles/${id}/review`, data)
+}
+
+// 下架已上线文章
+export function offlineArticle(id) {
+  return request.put(`/admin/diet/articles/${id}/offline`)
 }
 
 export function getStatistics() {
