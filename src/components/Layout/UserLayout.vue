@@ -8,7 +8,6 @@
         <el-menu-item index="/user/dashboard"><i class="el-icon-data-analysis" />数据看板</el-menu-item>
         <el-menu-item index="/user/actions"><i class="el-icon-video-play" />动作库</el-menu-item>
         <el-menu-item index="/user/diet"><i class="el-icon-food" />饮食中心</el-menu-item>
-        <el-menu-item index="/user/diet/record"><i class="el-icon-notebook-2" />饮食记录</el-menu-item>
         <el-menu-item index="/user/courses"><i class="el-icon-date" />课程预约</el-menu-item>
         <el-menu-item index="/user/training"><i class="el-icon-trophy" />训练中心</el-menu-item>
         <el-menu-item index="/user/coach-zone"><i class="el-icon-s-cooperation" />教练专区</el-menu-item>
