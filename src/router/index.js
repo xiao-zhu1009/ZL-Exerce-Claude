@@ -67,7 +67,8 @@ const routes = [
       { path: 'students/:id', component: () => import('@/views/coach/Students/Detail.vue') },
       { path: 'courses', component: () => import('@/views/coach/CourseManage/index.vue') },
       { path: 'publish/action', component: () => import('@/views/coach/ContentPublish/ActionPublish.vue') },
-      { path: 'publish/article', component: () => import('@/views/coach/ContentPublish/ArticlePublish.vue') }
+      { path: 'publish/article', component: () => import('@/views/coach/ContentPublish/ArticlePublish.vue') },
+      { path: 'foods', component: () => import('@/views/coach/FoodSubmit/index.vue') }
     ]
   },
 
@@ -83,6 +84,7 @@ const routes = [
       { path: 'review/actions', component: () => import('@/views/admin/ContentReview/ActionReview.vue') },
       { path: 'review/articles', component: () => import('@/views/admin/ContentReview/ArticleReview.vue') },
       { path: 'review/courses', component: () => import('@/views/admin/ContentReview/CourseReview.vue') },
+      { path: 'review/foods', component: () => import('@/views/admin/ContentReview/FoodReview.vue') },
       { path: 'coach-apply', component: () => import('@/views/admin/CoachApply/index.vue') }
     ]
   }

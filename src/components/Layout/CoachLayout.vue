@@ -9,6 +9,7 @@
         <el-menu-item index="/coach/courses"><i class="el-icon-date" />课程管理</el-menu-item>
         <el-menu-item index="/coach/publish/action"><i class="el-icon-video-camera" />动作投稿</el-menu-item>
         <el-menu-item index="/coach/publish/article"><i class="el-icon-edit-outline" />文章投稿</el-menu-item>
+        <el-menu-item index="/coach/foods"><i class="el-icon-food" />食物库投稿</el-menu-item>
       </el-menu>
     </el-aside>
     <el-container>

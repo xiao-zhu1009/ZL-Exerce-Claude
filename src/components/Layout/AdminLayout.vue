@@ -10,6 +10,7 @@
         <el-menu-item index="/admin/review/actions"><i class="el-icon-video-camera" />动作审核</el-menu-item>
         <el-menu-item index="/admin/review/articles"><i class="el-icon-document" />文章审核</el-menu-item>
         <el-menu-item index="/admin/review/courses"><i class="el-icon-date" />课程审核</el-menu-item>
+        <el-menu-item index="/admin/review/foods"><i class="el-icon-food" />食物库审核</el-menu-item>
         <el-menu-item index="/admin/coach-apply"><i class="el-icon-s-custom" />教练申请</el-menu-item>
       </el-menu>
     </el-aside>
