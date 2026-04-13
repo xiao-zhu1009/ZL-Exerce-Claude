@@ -49,8 +49,8 @@ const routes = [
       { path: 'actions/:id', component: () => import('@/views/user/ActionLibrary/Detail.vue') },
       { path: 'diet', component: () => import('@/views/user/DietCenter/index.vue') },
       { path: 'diet/articles/:id', component: () => import('@/views/user/DietCenter/ArticleDetail.vue') },
-      // 旧路由重定向，避免收藏夹失效
-      { path: 'diet/record', redirect: '/user/diet?tab=record' },
+      // 旧路由重定向，避免收藏夹失效（对象形式保证 query 可靠带上）
+      { path: 'diet/record', redirect: () => ({ path: '/user/diet', query: { tab: 'record' } }) },
       { path: 'courses', component: () => import('@/views/user/Course/index.vue') },
       { path: 'profile', component: () => import('@/views/user/Profile/index.vue') },
       { path: 'apply-coach', component: () => import('@/views/user/ApplyCoach/index.vue') },

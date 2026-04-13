@@ -1,12 +1,8 @@
 <template>
   <div>
-    <h2 style="margin-bottom:20px">饮食记录</h2>
-
     <el-tabs v-model="activeTab" @tab-click="onTabChange">
 
-      <!-- ── Tab1：每日详情 ─────────────────────────────────────── -->
       <el-tab-pane label="每日详情" name="daily">
-        <!-- 顶部：日期选择 + 当日营养汇总 -->
         <el-card style="margin-bottom:16px">
           <el-row :gutter="16" align="middle" type="flex">
             <el-col :span="6">
@@ -25,7 +21,6 @@
           </el-row>
         </el-card>
 
-        <!-- 按餐次展示 -->
         <el-card v-for="meal in meals" :key="meal.type" style="margin-bottom:12px">
           <div slot="header" style="display:flex;align-items:center;justify-content:space-between">
             <span>{{ meal.label }}
@@ -60,9 +55,7 @@
         </el-card>
       </el-tab-pane>
 
-      <!-- ── Tab2：近期趋势 ─────────────────────────────────────── -->
       <el-tab-pane label="近期趋势" name="trend">
-        <!-- 时间范围选择 -->
         <el-card style="margin-bottom:16px">
           <el-row :gutter="12" align="middle" type="flex">
             <el-col :span="4" style="color:#606266;font-size:14px">查看范围：</el-col>
@@ -79,7 +72,6 @@
           </el-row>
         </el-card>
 
-        <!-- 区间汇总统计 -->
         <el-row :gutter="12" style="margin-bottom:16px">
           <el-col :span="6">
             <el-card shadow="never" class="stat-card">
@@ -107,12 +99,11 @@
           </el-col>
         </el-row>
 
-        <!-- ECharts 图表 -->
         <el-card style="margin-bottom:16px" v-loading="trendLoading">
           <div slot="header">每日营养趋势</div>
-          <div ref="trendChart" style="height:300px" /></el-card>
+          <div ref="trendChart" style="height:300px" />
+        </el-card>
 
-        <!-- 明细表格 -->
         <el-card v-loading="trendLoading">
           <div slot="header">每日明细</div>
           <el-table :data="trendData" size="small" fit border>
@@ -139,7 +130,6 @@
             </el-table-column>
             <el-table-column label="" min-width="80">
               <template slot-scope="scope">
-                <!-- 点击跳转到该天详情 -->
                 <el-button v-if="scope.row.calories" size="mini" type="text"
                   @click="jumpToDate(scope.row.date)">查看详情</el-button>
               </template>
@@ -149,7 +139,6 @@
       </el-tab-pane>
     </el-tabs>
 
-    <!-- 添加记录弹窗 -->
     <el-dialog title="添加饮食记录" :visible.sync="dialogVisible" width="860px" top="5vh" @close="resetDialog">
       <el-form inline style="margin-bottom:12px">
         <el-form-item label="餐次">
@@ -232,7 +221,6 @@
       </div>
     </el-dialog>
 
-    <!-- 编辑记录弹窗 -->
     <el-dialog title="修改饮食记录" :visible.sync="editVisible" width="480px">
       <el-form :model="editForm" label-width="80px" size="small">
         <el-form-item label="食物名称">
@@ -277,7 +265,7 @@ import * as echarts from 'echarts'
 const emptyRow = () => ({ food_name: '', amount: 100, calories: 0, protein: 0, carbs: 0, fat: 0, _food: null })
 
 export default {
-  name: 'DietRecord',
+  name: 'DietRecordPanel',
   data() {
     return {
       activeTab: 'daily',
@@ -287,44 +275,48 @@ export default {
         { type: 1, label: '早餐' }, { type: 2, label: '午餐' },
         { type: 3, label: '晚餐' }, { type: 4, label: '加餐' }
       ],
-      // 弹窗
       dialogVisible: false,
       dialogMealType: 1,
       rows: [emptyRow()],
       submitting: false,
-      // 编辑弹窗
       editVisible: false,
       editForm: {},
       editSubmitting: false,
-      // 趋势
       trendDays: 7,
       trendData: [],
       trendLoading: false,
-      _chart: null   // echarts 实例
+      _chart: null,
+      _onResize: null,
     }
   },
   computed: {
     totalCalories() { return this.records.reduce((s, r) => s + Number(r.calories), 0).toFixed(0) },
-    totalProtein()  { return this.records.reduce((s, r) => s + Number(r.protein), 0).toFixed(1) },
-    totalCarbs()    { return this.records.reduce((s, r) => s + Number(r.carbs), 0).toFixed(1) },
-    totalFat()      { return this.records.reduce((s, r) => s + Number(r.fat), 0).toFixed(1) },
+    totalProtein() { return this.records.reduce((s, r) => s + Number(r.protein), 0).toFixed(1) },
+    totalCarbs() { return this.records.reduce((s, r) => s + Number(r.carbs), 0).toFixed(1) },
+    totalFat() { return this.records.reduce((s, r) => s + Number(r.fat), 0).toFixed(1) },
     batchCalories() { return this.rows.reduce((s, r) => s + Number(r.calories || 0), 0).toFixed(0) },
-    batchProtein()  { return this.rows.reduce((s, r) => s + Number(r.protein || 0), 0).toFixed(1) },
-    batchCarbs()    { return this.rows.reduce((s, r) => s + Number(r.carbs || 0), 0).toFixed(1) },
-    batchFat()      { return this.rows.reduce((s, r) => s + Number(r.fat || 0), 0).toFixed(1) },
-    // 趋势区间文字
+    batchProtein() { return this.rows.reduce((s, r) => s + Number(r.protein || 0), 0).toFixed(1) },
+    batchCarbs() { return this.rows.reduce((s, r) => s + Number(r.carbs || 0), 0).toFixed(1) },
+    batchFat() { return this.rows.reduce((s, r) => s + Number(r.fat || 0), 0).toFixed(1) },
     trendDateRange() {
       if (!this.trendData.length) return ''
       return `${this.trendData[0].date} ~ ${this.trendData[this.trendData.length - 1].date}`
     },
-    // 有记录的天数均值（排除 0 值天，避免拉低平均）
-    trendAvg() {      const active = this.trendData.filter(d => d.calories > 0)
+    trendAvg() {
+      const active = this.trendData.filter(d => d.calories > 0)
       if (!active.length) return { calories: '—', protein: '—', carbs: '—', fat: '—' }
       const avg = k => (active.reduce((s, d) => s + d[k], 0) / active.length).toFixed(1)
       return { calories: avg('calories'), protein: avg('protein'), carbs: avg('carbs'), fat: avg('fat') }
     }
   },
   created() { this.fetchRecords() },
+  beforeDestroy() {
+    if (this._onResize) window.removeEventListener('resize', this._onResize)
+    if (this._chart) {
+      this._chart.dispose()
+      this._chart = null
+    }
+  },
   methods: {
     onTabChange(tab) {
       if (tab.name === 'trend' && !this.trendData.length) this.fetchTrend()
@@ -349,14 +341,14 @@ export default {
       if (!el) return
       if (!this._chart) {
         this._chart = echarts.init(el)
-        // 窗口缩放时自适应
-        window.addEventListener('resize', () => this._chart && this._chart.resize())
+        this._onResize = () => this._chart && this._chart.resize()
+        window.addEventListener('resize', this._onResize)
       }
-      const dates    = this.trendData.map(d => d.date.slice(5))  // MM-DD
+      const dates = this.trendData.map(d => d.date.slice(5))
       const calories = this.trendData.map(d => d.calories)
-      const protein  = this.trendData.map(d => d.protein)
-      const carbs    = this.trendData.map(d => d.carbs)
-      const fat      = this.trendData.map(d => d.fat)
+      const protein = this.trendData.map(d => d.protein)
+      const carbs = this.trendData.map(d => d.carbs)
+      const fat = this.trendData.map(d => d.fat)
 
       this._chart.setOption({
         tooltip: {
@@ -373,7 +365,7 @@ export default {
         xAxis: { type: 'category', data: dates, axisLabel: { fontSize: 11 } },
         yAxis: [
           { type: 'value', name: 'kcal', nameTextStyle: { color: '#409EFF' }, axisLabel: { color: '#409EFF' } },
-          { type: 'value', name: 'g',    nameTextStyle: { color: '#999' },    axisLabel: { color: '#999' }, splitLine: { show: false } }
+          { type: 'value', name: 'g', nameTextStyle: { color: '#999' }, axisLabel: { color: '#999' }, splitLine: { show: false } }
         ],
         series: [
           {
@@ -386,17 +378,16 @@ export default {
           { name: '蛋白质', type: 'line', yAxisIndex: 1, data: protein,
             smooth: true, symbol: 'circle', symbolSize: 5,
             lineStyle: { color: '#67C23A' }, itemStyle: { color: '#67C23A' } },
-          { name: '碳水',   type: 'line', yAxisIndex: 1, data: carbs,
+          { name: '碳水', type: 'line', yAxisIndex: 1, data: carbs,
             smooth: true, symbol: 'circle', symbolSize: 5,
             lineStyle: { color: '#E6A23C' }, itemStyle: { color: '#E6A23C' } },
-          { name: '脂肪',   type: 'line', yAxisIndex: 1, data: fat,
+          { name: '脂肪', type: 'line', yAxisIndex: 1, data: fat,
             smooth: true, symbol: 'circle', symbolSize: 5,
             lineStyle: { color: '#F56C6C' }, itemStyle: { color: '#F56C6C' } },
         ]
       }, true)
     },
 
-    // 点击趋势表格"查看详情"跳到每日详情 tab
     jumpToDate(date) {
       this.date = date
       this.activeTab = 'daily'
@@ -410,7 +401,6 @@ export default {
     },
 
     openEditDialog(row) {
-      // 深拷贝，避免直接修改 records 里的对象
       this.editForm = {
         id: row.id,
         food_name: row.food_name,
@@ -436,7 +426,6 @@ export default {
         const { id, ...fields } = this.editForm
         const res = await updateDietRecord(id, fields)
         if (res.code === 200) {
-          // 用返回的最新数据替换 records 中对应项
           const idx = this.records.findIndex(r => r.id === id)
           if (idx !== -1) this.$set(this.records, idx, { ...this.records[idx], ...res.data })
           this.editVisible = false
@@ -450,7 +439,7 @@ export default {
       }
     },
     resetDialog() { this.rows = [emptyRow()] },
-    addRow()  { this.rows.push(emptyRow()) },
+    addRow() { this.rows.push(emptyRow()) },
     removeRow(i) { this.rows.splice(i, 1) },
 
     async searchFood(keyword, cb) {
@@ -473,9 +462,9 @@ export default {
       if (!row._food) return
       const ratio = (row.amount || 0) / 100
       row.calories = +(row._food.calories * ratio).toFixed(1)
-      row.protein  = +(row._food.protein  * ratio).toFixed(1)
-      row.carbs    = +(row._food.carbs    * ratio).toFixed(1)
-      row.fat      = +(row._food.fat      * ratio).toFixed(1)
+      row.protein = +(row._food.protein * ratio).toFixed(1)
+      row.carbs = +(row._food.carbs * ratio).toFixed(1)
+      row.fat = +(row._food.fat * ratio).toFixed(1)
     },
 
     async submitBatch() {
@@ -502,7 +491,6 @@ export default {
         this.records.push(...results)
         this.dialogVisible = false
         this.$message.success(`成功添加 ${results.length} 条记录`)
-        // 若趋势已加载，刷新一次
         if (this.trendData.length) this.fetchTrend()
       } catch (e) {
         this.$message.error(e.message || '部分记录添加失败')
@@ -521,8 +509,8 @@ export default {
     },
 
     recordsByMeal(type) { return this.records.filter(r => r.meal_type === type) },
-    mealCalories(type)  { return this.recordsByMeal(type).reduce((s, r) => s + Number(r.calories), 0).toFixed(0) },
-    toNum(v)            { return Number(v).toFixed(1) }
+    mealCalories(type) { return this.recordsByMeal(type).reduce((s, r) => s + Number(r.calories), 0).toFixed(0) },
+    toNum(v) { return Number(v).toFixed(1) }
   }
 }
 </script>
