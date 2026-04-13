@@ -1,8 +1,5 @@
 <template>
   <div>
-    <h2 style="margin-bottom:20px">动作库</h2>
-
-    <!-- 筛选栏 -->
     <el-card style="margin-bottom:16px">
       <el-row :gutter="12">
         <el-col :span="5">
@@ -33,12 +30,9 @@
       </el-row>
     </el-card>
 
-    <!-- 动作卡片列表 -->
     <el-row :gutter="16" v-loading="loading">
       <el-col :span="6" v-for="action in list" :key="action.id" style="margin-bottom:16px">
-        <!-- 点击动作卡片跳转详情页 -->
-        <el-card class="action-card" @click.native="$router.push(`/user/actions/${action.id}`)">
-          <!-- 封面图：有图显示图片，无图显示部位文字占位 -->
+        <el-card class="action-card" @click.native="goDetail(action.id)">
           <div class="cover">
             <img v-if="action.cover_img" :src="imgUrl(action.cover_img)" class="cover-img" />
             <span v-else class="cover-placeholder">{{ action.body_part }}</span>
@@ -60,7 +54,6 @@
 
     <el-empty v-if="!loading && list.length === 0" description="暂无动作" />
 
-    <!-- 分页：总数超过一页才显示 -->
     <div style="text-align:center;margin-top:16px" v-if="total > pageSize">
       <el-pagination
         background
@@ -80,7 +73,7 @@ import { getActions } from '@/api/action'
 const BASE_URL = process.env.VUE_APP_API_BASE || 'http://127.0.0.1:8009/api'
 
 export default {
-  name: 'ActionLibrary',
+  name: 'ActionLibraryPanel',
   data() {
     return {
       loading: false,
@@ -90,28 +83,32 @@ export default {
       pageSize: 12,
       filters: { body_part: '', category: '', difficulty: '', keyword: '' },
       bodyParts: ['胸', '背', '腿', '肩', '手臂', '核心'],
-      categories: ['力量', '有氧', '拉伸', '综合']
+      categories: ['力量', '有氧', '拉伸', '综合'],
+      loaded: false,
     }
   },
-  created() {
-    this.fetchList()
-  },
   methods: {
+    ensureLoaded() {
+      if (!this.loaded) this.fetchList()
+    },
+    goDetail(id) {
+      this.$router.push(`/user/training/actions/${id}`)
+    },
     async fetchList() {
       this.loading = true
       try {
         const params = { ...this.filters, page: this.page, page_size: this.pageSize }
-        // 过滤空字符串，避免后端收到无效筛选参数
         Object.keys(params).forEach(k => { if (params[k] === '') delete params[k] })
         const res = await getActions(params)
         this.list = res.data.list
         this.total = res.data.total
+        this.loaded = true
       } finally {
         this.loading = false
       }
     },
     onFilter() {
-      this.page = 1  // 筛选变化时重置到第一页
+      this.page = 1
       this.fetchList()
     },
     onPageChange(p) {

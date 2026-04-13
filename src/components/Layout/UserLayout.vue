@@ -4,9 +4,8 @@
       <div style="color:#fff;font-size:16px;font-weight:bold;padding:20px 16px;border-bottom:1px solid #1f3a5f">
         💪 智能健身 · 用户端
       </div>
-      <el-menu router background-color="#001529" text-color="#ccc" active-text-color="#409EFF" :default-active="$route.path">
+      <el-menu router background-color="#001529" text-color="#ccc" active-text-color="#409EFF" :default-active="menuActivePath">
         <el-menu-item index="/user/dashboard"><i class="el-icon-data-analysis" />数据看板</el-menu-item>
-        <el-menu-item index="/user/actions"><i class="el-icon-video-play" />动作库</el-menu-item>
         <el-menu-item index="/user/diet"><i class="el-icon-food" />饮食中心</el-menu-item>
         <el-menu-item index="/user/courses"><i class="el-icon-date" />课程预约</el-menu-item>
         <el-menu-item index="/user/training"><i class="el-icon-trophy" />训练中心</el-menu-item>
@@ -42,6 +41,12 @@
 export default {
   name: 'UserLayout',
   computed: {
+    /** 训练中心含动作详情子路由时，侧栏仍高亮「训练中心」 */
+    menuActivePath() {
+      const p = this.$route.path
+      if (p.startsWith('/user/training')) return '/user/training'
+      return p
+    },
     user() {
       return this.$store.state.user
     },

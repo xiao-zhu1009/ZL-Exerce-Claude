@@ -45,8 +45,8 @@ const routes = [
     children: [
       { path: '', redirect: 'dashboard' },
       { path: 'dashboard', component: () => import('@/views/user/Dashboard/index.vue') },
-      { path: 'actions', component: () => import('@/views/user/ActionLibrary/index.vue') },
-      { path: 'actions/:id', component: () => import('@/views/user/ActionLibrary/Detail.vue') },
+      { path: 'actions', redirect: () => ({ path: '/user/training', query: { tab: 'actions' } }) },
+      { path: 'actions/:id', redirect: to => ({ path: `/user/training/actions/${to.params.id}` }) },
       { path: 'diet', component: () => import('@/views/user/DietCenter/index.vue') },
       { path: 'diet/articles/:id', component: () => import('@/views/user/DietCenter/ArticleDetail.vue') },
       // 旧路由重定向，避免收藏夹失效（对象形式保证 query 可靠带上）
@@ -55,6 +55,7 @@ const routes = [
       { path: 'profile', component: () => import('@/views/user/Profile/index.vue') },
       { path: 'apply-coach', component: () => import('@/views/user/ApplyCoach/index.vue') },
       { path: 'training', component: () => import('@/views/user/Training/index.vue') },
+      { path: 'training/actions/:id', component: () => import('@/views/user/ActionLibrary/Detail.vue') },
       { path: 'coach-zone', component: () => import('@/views/user/CoachZone/index.vue') }
     ]
   },

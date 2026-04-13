@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-button icon="el-icon-arrow-left" @click="$router.back()" style="margin-bottom:16px">返回</el-button>
+    <el-button icon="el-icon-arrow-left" style="margin-bottom:16px" @click="backToLibrary">返回动作库</el-button>
     <el-card v-if="action" v-loading="loading">
       <div slot="header" style="font-size:20px;font-weight:bold">{{ action.title }}</div>
       <el-row :gutter="24">
@@ -93,6 +93,9 @@ export default {
     this.fetchDetail()
   },
   methods: {
+    backToLibrary() {
+      this.$router.push({ path: '/user/training', query: { tab: 'actions' } })
+    },
     async fetchDetail() {
       this.loading = true
       try {

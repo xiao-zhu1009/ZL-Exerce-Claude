@@ -4,7 +4,10 @@
       <h2>训练中心</h2>
     </div>
 
-    <el-tabs v-model="activeTab" type="border-card">
+    <el-tabs v-model="activeTab" type="border-card" @tab-click="onMainTabClick">
+      <el-tab-pane label="动作库" name="actions" lazy>
+        <action-library-panel ref="actionPanel" />
+      </el-tab-pane>
       <el-tab-pane label="训练记录" name="log">
         <workout-log />
       </el-tab-pane>
@@ -22,13 +25,53 @@
 import WorkoutLog from './WorkoutLog.vue'
 import TrainingPlan from './TrainingPlan.vue'
 import TrainingChart from './TrainingChart.vue'
+import ActionLibraryPanel from './ActionLibraryPanel.vue'
 
 export default {
   name: 'TrainingCenter',
-  components: { WorkoutLog, TrainingPlan, TrainingChart },
+  components: { WorkoutLog, TrainingPlan, TrainingChart, ActionLibraryPanel },
   data() {
     return {
       activeTab: 'log'
+    }
+  },
+  watch: {
+    '$route.query.tab': {
+      immediate: true,
+      handler() {
+        this.applyRouteTab()
+      }
+    },
+    activeTab(val) {
+      if (val === 'actions') {
+        this.$nextTick(() => {
+          if (this.$refs.actionPanel) this.$refs.actionPanel.ensureLoaded()
+        })
+      }
+    }
+  },
+  created() {
+    this.applyRouteTab()
+  },
+  methods: {
+    applyRouteTab() {
+      const t = (this.$route.query.tab || '').toString()
+      if (t === 'actions') this.activeTab = 'actions'
+    },
+    onMainTabClick(tab) {
+      if (tab.name === 'actions') {
+        this.$refs.actionPanel && this.$refs.actionPanel.ensureLoaded()
+      }
+      const q = { ...this.$route.query }
+      if (tab.name === 'actions') {
+        q.tab = 'actions'
+      } else {
+        delete q.tab
+      }
+      const same = JSON.stringify(q) === JSON.stringify(this.$route.query)
+      if (!same) {
+        this.$router.replace({ path: '/user/training', query: q }).catch(() => {})
+      }
     }
   }
 }
