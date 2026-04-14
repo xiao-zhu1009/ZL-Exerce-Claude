@@ -8,6 +8,9 @@
       <el-tab-pane label="动作库" name="actions" lazy>
         <action-library-panel ref="actionPanel" />
       </el-tab-pane>
+      <el-tab-pane label="身体记录" name="body">
+        <body-record />
+      </el-tab-pane>
       <el-tab-pane label="训练记录" name="log">
         <workout-log />
       </el-tab-pane>
@@ -26,10 +29,11 @@ import WorkoutLog from './WorkoutLog.vue'
 import TrainingPlan from './TrainingPlan.vue'
 import TrainingChart from './TrainingChart.vue'
 import ActionLibraryPanel from './ActionLibraryPanel.vue'
+import BodyRecord from './BodyRecord.vue'
 
 export default {
   name: 'TrainingCenter',
-  components: { WorkoutLog, TrainingPlan, TrainingChart, ActionLibraryPanel },
+  components: { WorkoutLog, TrainingPlan, TrainingChart, ActionLibraryPanel, BodyRecord },
   data() {
     return {
       activeTab: 'log'
