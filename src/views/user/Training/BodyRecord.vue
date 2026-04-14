@@ -222,7 +222,7 @@ export default {
           itemWidth: 14,
           textStyle: { fontSize: 12 },
         },
-        grid: { left: 50, right: 50, top: 44, bottom: 60 },
+        grid: { left: 50, right: 50, top: 44, bottom: 48 },
         xAxis: {
           type: 'category',
           data: dates,
@@ -248,19 +248,6 @@ export default {
             splitLine: { show: false },
             axisLabel: { fontSize: 11, formatter: '{value}%' },
           },
-        ],
-        // 底部滑动缩放，方便查看局部区间
-        dataZoom: [
-          {
-            type: 'slider',
-            bottom: 4,
-            height: 20,
-            // 默认展示最近 20 条，数据少时全展示
-            start: this.records.length > 20 ? Math.round((1 - 20 / this.records.length) * 100) : 0,
-            end: 100,
-            textStyle: { fontSize: 10 },
-          },
-          { type: 'inside' },   // 支持鼠标滚轮缩放
         ],
         series: [
           {
@@ -294,12 +281,18 @@ export default {
           },
         ],
       })
+      this.$nextTick(() => this.chart && this.chart.resize())
     },
   }
 }
 </script>
 
 <style scoped>
+.body-record {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
 .toolbar {
   display: flex;
   gap: 12px;
@@ -307,8 +300,11 @@ export default {
 }
 .chart-box {
   width: 100%;
-  height: 320px;
+  max-width: 100%;
+  min-width: 0;
+  height: 400px;
   margin-top: 16px;
+  box-sizing: border-box;
 }
 .last-hint {
   background: #f0f9eb;
