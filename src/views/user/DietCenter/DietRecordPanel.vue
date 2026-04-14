@@ -139,25 +139,33 @@
       </el-tab-pane>
     </el-tabs>
 
-    <el-dialog title="添加饮食记录" :visible.sync="dialogVisible" width="860px" top="5vh" @close="resetDialog">
-      <el-form inline style="margin-bottom:12px">
-        <el-form-item label="餐次">
-          <el-radio-group v-model="dialogMealType">
-            <el-radio-button :label="1">早餐</el-radio-button>
-            <el-radio-button :label="2">午餐</el-radio-button>
-            <el-radio-button :label="3">晚餐</el-radio-button>
-            <el-radio-button :label="4">加餐</el-radio-button>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item style="float:right">
-          <el-button size="small" icon="el-icon-plus" @click="addRow">添加一行</el-button>
-        </el-form-item>
-      </el-form>
+    <el-dialog title="添加饮食记录" :visible.sync="dialogVisible" width="960px" top="5vh" @close="resetDialog">
+      <!-- 已有记录提示 -->
+      <el-alert v-if="existingRows.length" type="info" :closable="false" show-icon
+        style="margin-bottom:12px"
+        :title="`今日已有 ${existingRows.length} 条记录（灰色行），新增行请填写后提交`" />
 
-      <el-table :data="rows" border size="small">
+      <div style="text-align:right;margin-bottom:8px">
+        <el-button size="small" icon="el-icon-plus" @click="addRow">添加一行</el-button>
+      </div>
+
+      <el-table :data="rows" border size="small" :row-class-name="rowClass">
+        <!-- 餐次：每行独立选择 -->
+        <el-table-column label="餐次" min-width="140">
+          <template slot-scope="scope">
+            <el-select v-model="scope.row.meal_type" size="small" style="width:100%"
+              :disabled="scope.row._existing">
+              <el-option :value="1" label="早餐" />
+              <el-option :value="2" label="午餐" />
+              <el-option :value="3" label="晚餐" />
+              <el-option :value="4" label="加餐" />
+            </el-select>
+          </template>
+        </el-table-column>
         <el-table-column label="食物名称" min-width="160">
           <template slot-scope="scope">
             <el-autocomplete
+              v-if="!scope.row._existing"
               v-model="scope.row.food_name"
               :fetch-suggestions="(kw, cb) => searchFood(kw, cb, scope.$index)"
               placeholder="搜索或手动输入"
@@ -170,43 +178,49 @@
                 <span style="color:#999;font-size:12px;margin-left:8px">{{ item.category }}</span>
               </template>
             </el-autocomplete>
+            <span v-else style="color:#909399;padding-left:4px">{{ scope.row.food_name }}</span>
           </template>
         </el-table-column>
         <el-table-column label="食用量(g)" min-width="100">
           <template slot-scope="scope">
-            <el-input v-model.number="scope.row.amount" size="small" type="number" min="1" @input="recalc(scope.$index)" />
+            <el-input v-if="!scope.row._existing" v-model.number="scope.row.amount" size="small" type="number" min="1" @input="recalc(scope.$index)" />
+            <span v-else style="color:#909399;padding-left:4px">{{ scope.row.amount }}</span>
           </template>
         </el-table-column>
         <el-table-column label="热量(kcal)" min-width="100">
           <template slot-scope="scope">
-            <el-input v-model.number="scope.row.calories" size="small" type="number" min="0" :class="scope.row._food ? 'auto-filled' : ''" />
+            <el-input v-if="!scope.row._existing" v-model.number="scope.row.calories" size="small" type="number" min="0" :class="scope.row._food ? 'auto-filled' : ''" />
+            <span v-else style="color:#909399;padding-left:4px">{{ scope.row.calories }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="蛋白质(g)" min-width="100">
+        <el-table-column label="蛋白质(g)" min-width="90">
           <template slot-scope="scope">
-            <el-input v-model.number="scope.row.protein" size="small" type="number" min="0" :class="scope.row._food ? 'auto-filled' : ''" />
+            <el-input v-if="!scope.row._existing" v-model.number="scope.row.protein" size="small" type="number" min="0" :class="scope.row._food ? 'auto-filled' : ''" />
+            <span v-else style="color:#909399;padding-left:4px">{{ scope.row.protein }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="碳水(g)" min-width="90">
+        <el-table-column label="碳水(g)" min-width="80">
           <template slot-scope="scope">
-            <el-input v-model.number="scope.row.carbs" size="small" type="number" min="0" :class="scope.row._food ? 'auto-filled' : ''" />
+            <el-input v-if="!scope.row._existing" v-model.number="scope.row.carbs" size="small" type="number" min="0" :class="scope.row._food ? 'auto-filled' : ''" />
+            <span v-else style="color:#909399;padding-left:4px">{{ scope.row.carbs }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="脂肪(g)" min-width="90">
+        <el-table-column label="脂肪(g)" min-width="80">
           <template slot-scope="scope">
-            <el-input v-model.number="scope.row.fat" size="small" type="number" min="0" :class="scope.row._food ? 'auto-filled' : ''" />
+            <el-input v-if="!scope.row._existing" v-model.number="scope.row.fat" size="small" type="number" min="0" :class="scope.row._food ? 'auto-filled' : ''" />
+            <span v-else style="color:#909399;padding-left:4px">{{ scope.row.fat }}</span>
           </template>
         </el-table-column>
         <el-table-column label="" width="44">
           <template slot-scope="scope">
-            <el-button size="mini" type="danger" icon="el-icon-close" circle
-              :disabled="rows.length === 1" @click="removeRow(scope.$index)" />
+            <el-button v-if="!scope.row._existing" size="mini" type="danger" icon="el-icon-close" circle
+              :disabled="newRows.length === 1" @click="removeRow(scope.$index)" />
           </template>
         </el-table-column>
       </el-table>
 
       <div style="margin-top:12px;padding:10px 12px;background:#f5f7fa;border-radius:4px;font-size:13px">
-        本次合计：
+        本次新增合计：
         <b style="color:#409EFF">{{ batchCalories }} kcal</b>
         <span style="margin-left:16px;color:#67C23A">蛋白质 {{ batchProtein }}g</span>
         <span style="margin-left:12px;color:#E6A23C">碳水 {{ batchCarbs }}g</span>
@@ -216,7 +230,7 @@
       <div slot="footer">
         <el-button @click="dialogVisible = false">取消</el-button>
         <el-button type="primary" :loading="submitting" @click="submitBatch">
-          确认添加（{{ rows.length }} 项）
+          确认添加（{{ newRows.length }} 项）
         </el-button>
       </div>
     </el-dialog>
@@ -262,7 +276,8 @@
 import { getDietRecords, addDietRecord, updateDietRecord, deleteDietRecord, searchFoods, getDietRangeSummary } from '@/api/diet'
 import * as echarts from 'echarts'
 
-const emptyRow = () => ({ food_name: '', amount: 100, calories: 0, protein: 0, carbs: 0, fat: 0, _food: null })
+// 新增行模板，meal_type 默认早餐，_existing 标记是否为已有记录（只读展示）
+const emptyRow = (mealType = 1) => ({ food_name: '', amount: 100, calories: 0, protein: 0, carbs: 0, fat: 0, meal_type: mealType, _food: null, _existing: false })
 
 export default {
   name: 'DietRecordPanel',
@@ -276,7 +291,7 @@ export default {
         { type: 3, label: '晚餐' }, { type: 4, label: '加餐' }
       ],
       dialogVisible: false,
-      dialogMealType: 1,
+      dialogMealType: 1,  // 保留字段兼容，实际已改为行级 meal_type
       rows: [emptyRow()],
       submitting: false,
       editVisible: false,
@@ -294,10 +309,14 @@ export default {
     totalProtein() { return this.records.reduce((s, r) => s + Number(r.protein), 0).toFixed(1) },
     totalCarbs() { return this.records.reduce((s, r) => s + Number(r.carbs), 0).toFixed(1) },
     totalFat() { return this.records.reduce((s, r) => s + Number(r.fat), 0).toFixed(1) },
-    batchCalories() { return this.rows.reduce((s, r) => s + Number(r.calories || 0), 0).toFixed(0) },
-    batchProtein() { return this.rows.reduce((s, r) => s + Number(r.protein || 0), 0).toFixed(1) },
-    batchCarbs() { return this.rows.reduce((s, r) => s + Number(r.carbs || 0), 0).toFixed(1) },
-    batchFat() { return this.rows.reduce((s, r) => s + Number(r.fat || 0), 0).toFixed(1) },
+    batchCalories() { return this.newRows.reduce((s, r) => s + Number(r.calories || 0), 0).toFixed(0) },
+    batchProtein() { return this.newRows.reduce((s, r) => s + Number(r.protein || 0), 0).toFixed(1) },
+    batchCarbs() { return this.newRows.reduce((s, r) => s + Number(r.carbs || 0), 0).toFixed(1) },
+    batchFat() { return this.newRows.reduce((s, r) => s + Number(r.fat || 0), 0).toFixed(1) },
+    // 已有记录行（只读展示）
+    existingRows() { return this.rows.filter(r => r._existing) },
+    // 新增行（待提交）
+    newRows() { return this.rows.filter(r => !r._existing) },
     trendDateRange() {
       if (!this.trendData.length) return ''
       return `${this.trendData[0].date} ~ ${this.trendData[this.trendData.length - 1].date}`
@@ -395,8 +414,19 @@ export default {
     },
 
     openDialog() {
-      this.dialogMealType = 1
-      this.rows = [emptyRow()]
+      // 把当天已有记录回填为只读行，再追加一个空白新增行
+      const existing = this.records.map(r => ({
+        food_name: r.food_name,
+        amount: Number(r.amount),
+        calories: Number(r.calories),
+        protein: Number(r.protein),
+        carbs: Number(r.carbs),
+        fat: Number(r.fat),
+        meal_type: r.meal_type,
+        _food: null,
+        _existing: true  // 标记为已有，不参与提交
+      }))
+      this.rows = [...existing, emptyRow()]
       this.dialogVisible = true
     },
 
@@ -440,7 +470,8 @@ export default {
     },
     resetDialog() { this.rows = [emptyRow()] },
     addRow() { this.rows.push(emptyRow()) },
-    removeRow(i) { this.rows.splice(i, 1) },
+    // 只允许删除新增行，已有行不可删
+    removeRow(i) { if (!this.rows[i]._existing) this.rows.splice(i, 1) },
 
     async searchFood(keyword, cb) {
       if (!keyword) return cb([])
@@ -468,16 +499,18 @@ export default {
     },
 
     async submitBatch() {
-      const invalid = this.rows.find(r => !r.food_name.trim() || !r.amount || r.amount <= 0)
+      // 只提交新增行，跳过已有记录行
+      const toSubmit = this.newRows
+      const invalid = toSubmit.find(r => !r.food_name.trim() || !r.amount || r.amount <= 0)
       if (invalid) return this.$message.warning('请填写完整的食物名称和食用量')
       this.submitting = true
       try {
         const results = []
-        for (const row of this.rows) {
+        for (const row of toSubmit) {
           const res = await addDietRecord({
             food_id: row._food ? row._food.id : null,
             food_name: row.food_name.trim(),
-            meal_type: this.dialogMealType,
+            meal_type: row.meal_type,  // 使用行级餐次
             amount: row.amount,
             calories: row.calories || 0,
             protein: row.protein || 0,
@@ -510,13 +543,19 @@ export default {
 
     recordsByMeal(type) { return this.records.filter(r => r.meal_type === type) },
     mealCalories(type) { return this.recordsByMeal(type).reduce((s, r) => s + Number(r.calories), 0).toFixed(0) },
-    toNum(v) { return Number(v).toFixed(1) }
+    toNum(v) { return Number(v).toFixed(1) },
+    // 已有记录行加灰色样式
+    rowClass({ row }) { return row._existing ? 'existing-row' : '' }
   }
 }
 </script>
 
 <style scoped>
 .auto-filled >>> .el-input__inner { background: #f0f9eb; color: #67C23A; }
+
+/* 已有记录行：灰底只读样式 */
+.existing-row { background: #f5f5f5; }
+.existing-row >>> td { background: #f5f5f5 !important; color: #909399; }
 
 .stat-card { text-align: center; padding: 4px 0; }
 .stat-label { font-size: 13px; color: #909399; margin-bottom: 6px; }
