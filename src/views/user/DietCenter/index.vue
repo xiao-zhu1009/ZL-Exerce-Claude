@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2 style="margin:0 0 20px">饮食中心</h2>
+    <!-- <h2 style="margin:0 0 20px">饮食中心</h2> -->
 
     <el-tabs v-model="activeTab" @tab-click="onMainTabClick">
 

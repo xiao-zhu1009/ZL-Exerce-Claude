@@ -1,7 +1,5 @@
 <template>
   <div>
-    <h2 style="margin-bottom:20px">教练专区</h2>
-
     <el-tabs v-model="activeTab">
       <!-- ── 找教练 ── -->
       <el-tab-pane label="找教练" name="list">

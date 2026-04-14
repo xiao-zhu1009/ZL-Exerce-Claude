@@ -1,6 +1,5 @@
 <template>
   <div v-loading="loading" class="dashboard">
-    <h2 style="margin-bottom:20px">数据看板</h2>
 
     <!-- 概览卡片 -->
     <el-row :gutter="16" style="margin-bottom:20px">

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2 style="margin-bottom:20px">个人主页</h2>
+    <!-- <h2 style="margin-bottom:20px">个人主页</h2> -->
     <el-row :gutter="20">
       <!-- 账号信息 -->
       <el-col :span="12">

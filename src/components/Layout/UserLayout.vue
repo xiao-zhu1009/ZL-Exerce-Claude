@@ -15,8 +15,10 @@
         <el-menu-item index="/user/apply-coach"><i class="el-icon-s-custom" />申请成为教练</el-menu-item>
       </el-menu>
     </el-aside>
+    
     <el-container>
       <el-header class="user-layout-header">
+        <span class="page-title">{{ $route.meta.title || '' }}</span>
         <el-dropdown trigger="click" class="user-menu" @command="handleUserCommand">
           <span class="user-menu-trigger">
             <el-avatar :size="32" fit="cover" :src="headerAvatar" class="user-menu-avatar">
@@ -88,9 +90,14 @@ export default {
   background: #fff;
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   border-bottom: 1px solid #eee;
-  padding-right: 8px;
+  padding: 0 16px 0 20px;
+}
+.page-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #303133;
 }
 .user-menu-trigger {
   display: inline-flex;

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2 style="margin-bottom:20px">课程预约</h2>
+    <!-- <h2 style="margin-bottom:20px">课程预约</h2> -->
 
     <!-- 筛选栏 -->
     <el-card style="margin-bottom:16px">

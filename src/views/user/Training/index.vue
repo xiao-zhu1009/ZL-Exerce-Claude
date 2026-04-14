@@ -1,8 +1,5 @@
 <template>
   <div class="training-center">
-    <div class="page-header">
-      <h2>训练中心</h2>
-    </div>
 
     <el-tabs v-model="activeTab" type="border-card" @tab-click="onMainTabClick">
       <el-tab-pane label="动作库" name="actions" lazy>
@@ -82,9 +79,9 @@ export default {
 </script>
 
 <style scoped>
-.training-center {
+/* .training-center {
   padding: 20px;
-}
+} */
 .page-header {
   margin-bottom: 16px;
 }

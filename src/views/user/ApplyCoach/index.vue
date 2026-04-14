@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2 style="margin-bottom:20px">申请成为教练</h2>
+    <!-- <h2 style="margin-bottom:20px">申请成为教练</h2> -->
     <el-card style="max-width:600px">
 
       <!-- 已是教练 -->
