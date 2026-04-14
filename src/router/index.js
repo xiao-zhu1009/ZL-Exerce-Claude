@@ -48,9 +48,11 @@ const routes = [
       { path: 'actions', redirect: () => ({ path: '/user/training', query: { tab: 'actions' } }) },
       { path: 'actions/:id', redirect: to => ({ path: `/user/training/actions/${to.params.id}` }) },
       { path: 'diet', component: () => import('@/views/user/DietCenter/index.vue') },
-      { path: 'diet/articles/:id', component: () => import('@/views/user/DietCenter/ArticleDetail.vue') },
-      // 旧路由重定向，避免收藏夹失效（对象形式保证 query 可靠带上）
+      // 旧路由重定向，避免收藏夹失效
       { path: 'diet/record', redirect: () => ({ path: '/user/diet', query: { tab: 'record' } }) },
+      { path: 'diet/articles/:id', redirect: to => ({ path: `/user/articles/${to.params.id}` }) },
+      { path: 'articles', component: () => import('@/views/user/ArticleLibrary/index.vue') },
+      { path: 'articles/:id', component: () => import('@/views/user/DietCenter/ArticleDetail.vue') },
       { path: 'courses', component: () => import('@/views/user/Course/index.vue') },
       { path: 'profile', component: () => import('@/views/user/Profile/index.vue') },
       { path: 'apply-coach', component: () => import('@/views/user/ApplyCoach/index.vue') },

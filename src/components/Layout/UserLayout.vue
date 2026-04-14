@@ -6,10 +6,11 @@
       </div>
       <el-menu router background-color="#001529" text-color="#ccc" active-text-color="#409EFF" :default-active="menuActivePath">
         <el-menu-item index="/user/dashboard"><i class="el-icon-data-analysis" />数据看板</el-menu-item>
-        <el-menu-item index="/user/diet"><i class="el-icon-food" />饮食中心</el-menu-item>
-        <el-menu-item index="/user/courses"><i class="el-icon-date" />课程预约</el-menu-item>
         <el-menu-item index="/user/training"><i class="el-icon-trophy" />训练中心</el-menu-item>
+        <el-menu-item index="/user/diet"><i class="el-icon-food" />饮食中心</el-menu-item>
+        <el-menu-item index="/user/articles"><i class="el-icon-reading" />文章库</el-menu-item>
         <el-menu-item index="/user/coach-zone"><i class="el-icon-s-cooperation" />教练专区</el-menu-item>
+        <el-menu-item index="/user/courses"><i class="el-icon-date" />课程预约</el-menu-item>
         <el-menu-item index="/user/profile"><i class="el-icon-user" />个人主页</el-menu-item>
         <el-menu-item index="/user/apply-coach"><i class="el-icon-s-custom" />申请成为教练</el-menu-item>
       </el-menu>
@@ -45,6 +46,7 @@ export default {
     menuActivePath() {
       const p = this.$route.path
       if (p.startsWith('/user/training')) return '/user/training'
+      if (p.startsWith('/user/articles')) return '/user/articles'
       return p
     },
     user() {

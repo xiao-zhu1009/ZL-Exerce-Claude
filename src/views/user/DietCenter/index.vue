@@ -48,48 +48,6 @@
         <diet-record-panel ref="recordPanel" />
       </el-tab-pane>
 
-      <el-tab-pane label="推荐餐食" name="articles">
-        <el-card style="margin-bottom:16px">
-          <el-row :gutter="12">
-            <el-col :span="6">
-              <el-select v-model="articleFilters.category" placeholder="文章分类" clearable @change="fetchArticles">
-                <el-option v-for="c in articleCategories" :key="c" :label="c" :value="c" />
-              </el-select>
-            </el-col>
-            <el-col :span="12">
-              <el-input v-model="articleFilters.keyword" placeholder="搜索文章标题" clearable @clear="fetchArticles">
-                <el-button slot="append" icon="el-icon-search" @click="fetchArticles" />
-              </el-input>
-            </el-col>
-          </el-row>
-        </el-card>
-
-        <el-row :gutter="16" v-loading="articleLoading">
-          <el-col :span="8" v-for="article in articleList" :key="article.id" style="margin-bottom:16px">
-            <el-card class="article-card" @click.native="$router.push(`/user/diet/articles/${article.id}`)">
-              <div class="cover">
-                <img v-if="article.cover_img" :src="imgUrl(article.cover_img)" class="cover-img" />
-                <span v-else class="cover-placeholder">{{ article.category }}</span>
-              </div>
-              <div style="padding:12px">
-                <div style="font-weight:bold;font-size:15px;margin-bottom:8px">{{ article.title }}</div>
-                <el-tag size="mini">{{ article.category }}</el-tag>
-                <div style="color:#999;font-size:12px;margin-top:8px">{{ article.view_count }} 次浏览 · {{ article.created_at }}</div>
-                <div v-if="article.summary" style="color:#666;font-size:13px;margin-top:6px;line-height:1.5" class="summary">{{ article.summary }}</div>
-              </div>
-            </el-card>
-          </el-col>
-        </el-row>
-
-        <el-empty v-if="!articleLoading && articleList.length === 0" description="暂无文章" />
-
-        <div style="text-align:center;margin-top:16px" v-if="articleTotal > articleFilters.page_size">
-          <el-pagination background layout="prev, pager, next"
-            :total="articleTotal" :page-size="articleFilters.page_size"
-            :current-page="articleFilters.page" @current-change="onArticlePageChange" />
-        </div>
-      </el-tab-pane>
-
       <el-tab-pane label="食物库" name="foods">
         <el-card style="margin-bottom:16px">
           <el-row :gutter="12" type="flex" align="middle">
@@ -237,7 +195,7 @@
 </template>
 
 <script>
-import { getDietArticles, searchFoods, addDietRecord } from '@/api/diet'
+import { searchFoods, addDietRecord } from '@/api/diet'
 import { getDietPlans, getDietPlanDetail } from '@/api/dietPlan'
 import DietRecordPanel from './DietRecordPanel.vue'
 
@@ -255,13 +213,6 @@ export default {
   data() {
     return {
       activeTab: 'dietPlans',
-
-      articleLoading: false,
-      articleLoaded: false,
-      articleList: [],
-      articleTotal: 0,
-      articleFilters: { category: '', keyword: '', page: 1, page_size: 12 },
-      articleCategories: ['增肌餐', '减脂餐', '均衡饮食', '补剂知识'],
 
       foodLoading: false,
       foodList: [],
@@ -303,10 +254,9 @@ export default {
       },
     },
   },
-  created() {
+    created() {
     this.applyRouteTab()
     if (this.activeTab === 'dietPlans') this.fetchDietPlans()
-    else if (this.activeTab === 'articles') this.fetchArticles()
     else if (this.activeTab === 'foods') this.fetchFoods()
   },
   methods: {
@@ -318,7 +268,6 @@ export default {
 
     onMainTabClick(tab) {
       if (tab.name === 'dietPlans' && !this.dietPlanLoaded) this.fetchDietPlans()
-      if (tab.name === 'articles' && !this.articleLoaded) this.fetchArticles()
       if (tab.name === 'foods' && !this.foodLoaded) this.fetchFoods()
 
       const q = { ...this.$route.query }
@@ -331,23 +280,6 @@ export default {
       if (!same) {
         this.$router.replace({ path: '/user/diet', query: q }).catch(() => {})
       }
-    },
-
-    async fetchArticles() {
-      this.articleLoading = true
-      try {
-        const params = { page: this.articleFilters.page, page_size: this.articleFilters.page_size }
-        if (this.articleFilters.category) params.category = this.articleFilters.category
-        if (this.articleFilters.keyword) params.keyword = this.articleFilters.keyword
-        const res = await getDietArticles(params)
-        this.articleList = res.data.list
-        this.articleTotal = res.data.total
-        this.articleLoaded = true
-      } finally { this.articleLoading = false }
-    },
-    onArticlePageChange(page) {
-      this.articleFilters.page = page
-      this.fetchArticles()
     },
 
     async fetchFoods() {
@@ -424,13 +356,6 @@ export default {
 </script>
 
 <style scoped>
-.article-card { cursor: pointer; transition: box-shadow .2s; }
-.article-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.12); }
-.cover { height: 120px; background: #f0f2f5; display: flex; align-items: center; justify-content: center; border-radius: 4px; overflow: hidden; }
-.cover-img { width: 100%; height: 100%; object-fit: cover; }
-.cover-placeholder { font-size: 16px; color: #999; }
-.summary { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-
 .food-card { transition: box-shadow .2s; }
 .nutrient-row { display: flex; justify-content: space-between; }
 .nutrient-item { text-align: center; flex: 1; }
