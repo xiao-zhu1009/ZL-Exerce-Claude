@@ -48,6 +48,7 @@
       <!-- ── 我的教练 ── -->
       <el-tab-pane label="我的教练" name="mine">
         <div v-loading="mineLoading">
+          <!-- 已绑定 -->
           <el-card v-if="myCoach" style="max-width:480px">
             <div style="display:flex;align-items:center;gap:20px;margin-bottom:16px">
               <el-avatar :size="72" :src="myCoach.avatar">
@@ -66,6 +67,22 @@
               <el-button size="small" type="danger" @click="handleUnbind">解除绑定</el-button>
             </div>
           </el-card>
+
+          <!-- 申请中（pending） -->
+          <el-card v-else-if="pendingApply" style="max-width:480px">
+            <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
+              <el-avatar :size="56">
+                <i class="el-icon-user" />
+              </el-avatar>
+              <div>
+                <div style="font-size:16px;font-weight:bold">{{ pendingApply.nickname }}</div>
+                <el-tag type="warning" size="small" style="margin-top:6px">
+                  <i class="el-icon-loading" /> 申请中，等待教练处理
+                </el-tag>
+              </div>
+            </div>
+          </el-card>
+
           <el-empty v-else description="暂未绑定教练，去「找教练」申请吧" />
         </div>
       </el-tab-pane>
@@ -179,7 +196,8 @@ export default {
       pageSize: 12,
       total: 0,
       mineLoading: false,
-      myCoach: null,
+      myCoach: null,       // active 绑定信息
+      pendingApply: null,  // pending 申请信息
       // 教练详情弹窗
       detailVisible: false,
       detailLoading: false,
@@ -192,11 +210,17 @@ export default {
     }
   },
   computed: {
-    // 根据 myCoach 状态生成按钮文字映射 { coachId: '已绑定' | '申请中' }
+    // 根据 active/pending 状态生成按钮文字映射 { coachId: label }
     bindStatusMap() {
       const map = {}
       if (this.myCoach) {
         map[this.myCoach.coach_id] = '已绑定'
+      }
+      if (this.pendingApply) {
+        // 若该教练已有 pending 申请，标记"申请中"
+        if (!map[this.pendingApply.coach_id]) {
+          map[this.pendingApply.coach_id] = '申请中'
+        }
       }
       return map
     },
@@ -221,7 +245,9 @@ export default {
       this.mineLoading = true
       try {
         const res = await getMyCoach()
-        this.myCoach = res.data || null
+        const d = res.data || {}
+        this.myCoach = d.active || null
+        this.pendingApply = d.pending || null
       } finally {
         this.mineLoading = false
       }
@@ -245,7 +271,28 @@ export default {
       }
     },
     handleApply(coach) {
+      // 已绑定该教练，不可重复操作
       if (this.myCoach && this.myCoach.coach_id === coach.id) return
+
+      // 已有 pending 申请且目标是同一教练，提示等待
+      if (this.pendingApply && this.pendingApply.coach_id === coach.id) {
+        this.$message.warning('已向该教练提交申请，请等待处理')
+        return
+      }
+
+      // 已有 pending 申请但想申请其他教练，提示先撤销
+      if (this.pendingApply && this.pendingApply.coach_id !== coach.id) {
+        this.$confirm(
+          `您已向「${this.pendingApply.nickname}」提交了申请，申请其他教练将自动撤销原申请，确认继续？`,
+          '提示', { type: 'warning', confirmButtonText: '继续申请', cancelButtonText: '取消' }
+        ).then(() => {
+          this.applyTarget = coach
+          this.applyMsg = ''
+          this.applyVisible = true
+        }).catch(() => {})
+        return
+      }
+
       this.applyTarget = coach
       this.applyMsg = ''
       this.applyVisible = true
@@ -254,6 +301,10 @@ export default {
       this.applyLoading = true
       try {
         const res = await applyBind({ coach_id: this.applyTarget.id, request_msg: this.applyMsg })
+        if (res.code !== 200) {
+          this.$message.error(res.message || '申请失败')
+          return
+        }
         this.$message.success(res.message || '申请已提交')
         this.applyVisible = false
         this.fetchMyCoach()
@@ -270,6 +321,7 @@ export default {
         this.$message.success('已解绑')
         this.myCoach = null
         this.fetchCoaches()
+        this.fetchMyCoach()
       } catch (e) {
         this.$message.error(e?.response?.data?.message || '操作失败')
       }
