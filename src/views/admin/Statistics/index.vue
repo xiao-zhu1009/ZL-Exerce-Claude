@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h2 style="margin-bottom:20px">数据统计</h2>
     <el-row :gutter="16" style="margin-bottom:20px">
       <el-col :span="4" v-for="card in overviewCards" :key="card.label">
         <el-card style="text-align:center">

@@ -1,7 +1,5 @@
 <template>
   <div>
-    <h2 style="margin-bottom:20px">动作管理</h2>
-
     <!-- Tab 切换：按状态分类查看 -->
     <el-tabs v-model="activeTab" @tab-click="onTabChange">
       <el-tab-pane label="待审核" name="0" />

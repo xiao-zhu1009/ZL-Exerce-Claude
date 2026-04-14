@@ -1,7 +1,5 @@
 <template>
   <div>
-    <h2 style="margin-bottom:20px">教练-学员绑定监管</h2>
-
     <!-- 统计卡片 -->
     <el-row :gutter="16" style="margin-bottom:24px" v-loading="statsLoading">
       <el-col :span="8">

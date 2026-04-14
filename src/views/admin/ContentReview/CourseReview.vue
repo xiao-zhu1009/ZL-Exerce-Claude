@@ -1,7 +1,5 @@
 <template>
   <div>
-    <h2 style="margin-bottom:20px">课程审核</h2>
-
     <!-- 状态筛选 -->
     <el-card style="margin-bottom:16px">
       <el-radio-group v-model="filterStatus" @change="fetchList">

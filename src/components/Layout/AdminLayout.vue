@@ -16,9 +16,12 @@
       </el-menu>
     </el-aside>
     <el-container>
-      <el-header style="background:#fff;display:flex;align-items:center;justify-content:flex-end;border-bottom:1px solid #eee">
-        <span style="margin-right:12px;color:#666">{{ user && user.nickname }}</span>
-        <el-button size="small" @click="logout">退出</el-button>
+      <el-header class="admin-layout-header">
+        <span class="page-title">{{ $route.meta.title || '' }}</span>
+        <div class="header-right">
+          <span class="user-name">{{ user && user.nickname }}</span>
+          <el-button size="small" @click="logout">退出</el-button>
+        </div>
       </el-header>
       <el-main style="background:#f0f2f5">
         <router-view />
@@ -39,3 +42,28 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.admin-layout-header {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #eee;
+  padding: 0 16px 0 20px;
+}
+.page-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #303133;
+}
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.user-name {
+  color: #666;
+  font-size: 14px;
+}
+</style>

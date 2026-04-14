@@ -1,7 +1,5 @@
 <template>
   <div>
-    <h2 style="margin-bottom:20px">食物库投稿</h2>
-
     <!-- 投稿表单 -->
     <el-card style="margin-bottom:20px">
       <div slot="header">投稿新食物（每 100g / 100ml 的营养素）</div>

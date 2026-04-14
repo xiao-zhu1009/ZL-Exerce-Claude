@@ -1,8 +1,6 @@
 <template>
   <div>
-    <h2 style="margin-bottom:20px">动作投稿</h2>
     <el-row :gutter="20">
-
       <!-- 左：发布表单 -->
       <el-col :span="13">
         <el-card>

@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h2 style="margin-bottom:20px">文章投稿</h2>
     <el-row :gutter="20">
       <!-- 左侧：发布/编辑表单 -->
       <el-col :span="13">

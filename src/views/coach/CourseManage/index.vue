@@ -1,7 +1,5 @@
 <template>
   <div>
-    <h2 style="margin-bottom:20px">课程管理</h2>
-
     <!-- Tab 切换：课程列表 / 预约审批 -->
     <el-tabs v-model="activeTab">
       <el-tab-pane label="我的课程" name="courses">

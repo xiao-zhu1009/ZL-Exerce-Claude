@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h2 style="margin-bottom:20px">用户管理</h2>
     <el-card style="margin-bottom:16px">
       <el-row :gutter="12">
         <el-col :span="8">

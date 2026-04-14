@@ -69,13 +69,13 @@ const routes = [
     meta: { role: 'coach' },
     children: [
       { path: '', redirect: 'students' },
-      { path: 'students', component: () => import('@/views/coach/Students/index.vue') },
-      { path: 'students/:id', component: () => import('@/views/coach/Students/Detail.vue') },
-      { path: 'courses', component: () => import('@/views/coach/CourseManage/index.vue') },
-      { path: 'publish/action', component: () => import('@/views/coach/ContentPublish/ActionPublish.vue') },
-      { path: 'publish/article', component: () => import('@/views/coach/ContentPublish/ArticlePublish.vue') },
-      { path: 'foods', component: () => import('@/views/coach/FoodSubmit/index.vue') },
-      { path: 'profile', component: () => import('@/views/coach/Profile/index.vue') }
+      { path: 'students', component: () => import('@/views/coach/Students/index.vue'), meta: { title: '学员管理' } },
+      { path: 'students/:id', component: () => import('@/views/coach/Students/Detail.vue'), meta: { title: '学员详情' } },
+      { path: 'courses', component: () => import('@/views/coach/CourseManage/index.vue'), meta: { title: '课程管理' } },
+      { path: 'publish/action', component: () => import('@/views/coach/ContentPublish/ActionPublish.vue'), meta: { title: '动作库投稿' } },
+      { path: 'publish/article', component: () => import('@/views/coach/ContentPublish/ArticlePublish.vue'), meta: { title: '文章库投稿' } },
+      { path: 'foods', component: () => import('@/views/coach/FoodSubmit/index.vue'), meta: { title: '食物库投稿' } },
+      { path: 'profile', component: () => import('@/views/coach/Profile/index.vue'), meta: { title: '个人主页' } }
     ]
   },
 
@@ -86,14 +86,14 @@ const routes = [
     meta: { role: 'admin' },
     children: [
       { path: '', redirect: 'statistics' },
-      { path: 'statistics', component: () => import('@/views/admin/Statistics/index.vue') },
-      { path: 'users', component: () => import('@/views/admin/UserManage/index.vue') },
-      { path: 'review/actions', component: () => import('@/views/admin/ContentReview/ActionReview.vue') },
-      { path: 'review/articles', component: () => import('@/views/admin/ContentReview/ArticleReview.vue') },
-      { path: 'review/courses', component: () => import('@/views/admin/ContentReview/CourseReview.vue') },
-      { path: 'review/foods', component: () => import('@/views/admin/ContentReview/FoodReview.vue') },
-      { path: 'coach-apply', component: () => import('@/views/admin/CoachApply/index.vue') },
-      { path: 'bind-monitor', component: () => import('@/views/admin/BindMonitor/index.vue') }
+      { path: 'statistics', component: () => import('@/views/admin/Statistics/index.vue'), meta: { title: '数据统计' } },
+      { path: 'users', component: () => import('@/views/admin/UserManage/index.vue'), meta: { title: '用户管理' } },
+      { path: 'review/actions', component: () => import('@/views/admin/ContentReview/ActionReview.vue'), meta: { title: '动作审核' } },
+      { path: 'review/articles', component: () => import('@/views/admin/ContentReview/ArticleReview.vue'), meta: { title: '文章审核' } },
+      { path: 'review/courses', component: () => import('@/views/admin/ContentReview/CourseReview.vue'), meta: { title: '课程审核' } },
+      { path: 'review/foods', component: () => import('@/views/admin/ContentReview/FoodReview.vue'), meta: { title: '食物库审核' } },
+      { path: 'coach-apply', component: () => import('@/views/admin/CoachApply/index.vue'), meta: { title: '教练申请' } },
+      { path: 'bind-monitor', component: () => import('@/views/admin/BindMonitor/index.vue'), meta: { title: '绑定监管' } }
     ]
   }
 ]
@@ -110,7 +110,7 @@ router.beforeEach((to, from, next) => {
       if (home) return next(home)
       removeToken()
       store.commit('LOGOUT')
-    } 
+    }
     return next()
   }
 
@@ -126,7 +126,7 @@ router.beforeEach((to, from, next) => {
   // 角色权限校验（与首页跳转一致：JWT 可作后备，避免仅有 token、Vuex 未带 role 时误拦）
   // 判断当前登录的用户等级role(user/coach/admin)，先从vuex中拿去role，没有就解码token解析role
   const effectiveRole = resolveRoleForHome(token) || store.getters.role
-  console.log('to是什么',to)
+  console.log('to是什么', to)
   // 遍历当前目标路由往上全部路由配置项的meta中确定当前用户角色权限（user/coach/admin）
   const requiredRole = to.matched.find(r => r.meta.role)?.meta.role
   // 只有目标路由所需权限和当前账号权限相同时才能放行跳转

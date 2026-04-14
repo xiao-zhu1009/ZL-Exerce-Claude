@@ -1,7 +1,5 @@
 <template>
   <div>
-    <h2 style="margin-bottom:20px">教练申请审批</h2>
-
     <!-- Tab 切换 -->
     <el-tabs v-model="activeTab" @tab-click="loadList">
       <el-tab-pane label="待审" name="pending" />

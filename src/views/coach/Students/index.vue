@@ -1,7 +1,5 @@
 <template>
   <div>
-    <h2 style="margin-bottom:20px">学员管理</h2>
-
     <el-tabs v-model="activeTab" @tab-click="onTabChange">
       <!-- ── 已绑定学员 ── -->
       <el-tab-pane label="我的学员" name="active">

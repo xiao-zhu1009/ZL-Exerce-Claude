@@ -1,7 +1,5 @@
 <template>
   <div>
-    <h2 style="margin-bottom:20px">个人主页</h2>
-
     <el-row :gutter="20" v-loading="pageLoading">
       <!-- 左列：头像 + 账号基本信息 -->
       <el-col :span="10">
