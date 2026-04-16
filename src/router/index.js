@@ -126,7 +126,6 @@ router.beforeEach((to, from, next) => {
   // 角色权限校验（与首页跳转一致：JWT 可作后备，避免仅有 token、Vuex 未带 role 时误拦）
   // 判断当前登录的用户等级role(user/coach/admin)，先从vuex中拿去role，没有就解码token解析role
   const effectiveRole = resolveRoleForHome(token) || store.getters.role
-  console.log('to是什么', to)
   // 遍历当前目标路由往上全部路由配置项的meta中确定当前用户角色权限（user/coach/admin）
   const requiredRole = to.matched.find(r => r.meta.role)?.meta.role
   // 只有目标路由所需权限和当前账号权限相同时才能放行跳转

@@ -9,8 +9,13 @@
       </el-col>
     </el-row>
     <el-card>
-      <div slot="header">用户增长趋势</div>
-      <!-- TODO: 对接后端 GET /admin/statistics 获取真实数据 -->
+      <div slot="header" style="display:flex;align-items:center;justify-content:space-between">
+        <span>用户增长趋势</span>
+        <el-radio-group v-model="granularity" size="small" @change="loadChart">
+          <el-radio-button label="month">按月</el-radio-button>
+          <el-radio-button label="day">按日</el-radio-button>
+        </el-radio-group>
+      </div>
       <div ref="growthChart" style="height:300px" />
     </el-card>
   </div>
@@ -22,10 +27,16 @@ import { getStatistics } from '@/api/admin'
 
 export default {
   name: 'Statistics',
-  data() { return { overviewCards: [] } },
+  data() {
+    return {
+      overviewCards: [],
+      granularity: 'month', // 当前粒度：month / day
+      chart: null
+    }
+  },
   async created() {
-    // TODO: 对接后端 GET /admin/statistics
-    const res = await getStatistics()
+    // 加载概览卡片（只需请求一次，粒度切换不影响卡片数据）
+    const res = await getStatistics('month')
     const d = res.data
     this.overviewCards = [
       { label: '总用户数', value: d.total_users },
@@ -36,14 +47,30 @@ export default {
       { label: '预约总数', value: d.total_reservations }
     ]
     this.$nextTick(() => {
-      const chart = echarts.init(this.$refs.growthChart)
-      chart.setOption({
-        tooltip: { trigger: 'axis' },
-        xAxis: { type: 'category', data: d.user_growth.map(g => g.month) },
-        yAxis: { type: 'value', name: '人数' },
-        series: [{ name: '活跃用户', type: 'line', smooth: true, areaStyle: {}, data: d.user_growth.map(g => g.count) }]
-      })
+      this.chart = echarts.init(this.$refs.growthChart)
+      this._renderChart(d.user_growth)
     })
+  },
+  methods: {
+    // 切换粒度时重新请求并刷新图表
+    async loadChart(granularity) {
+      const res = await getStatistics(granularity)
+      this._renderChart(res.data.user_growth)
+    },
+    _renderChart(growth) {
+      this.chart.setOption({
+        tooltip: { trigger: 'axis' },
+        xAxis: { type: 'category', data: growth.map(g => g.label) },
+        yAxis: { type: 'value', name: '人数' },
+        series: [{
+          name: '新增用户',
+          type: 'line',
+          smooth: true,
+          areaStyle: {},
+          data: growth.map(g => g.count)
+        }]
+      })
+    }
   }
 }
 </script>

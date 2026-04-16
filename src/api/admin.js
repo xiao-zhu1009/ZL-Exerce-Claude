@@ -1,5 +1,4 @@
 import request from '@/utils/request'
-const mockResolve = data => Promise.resolve({ code: 200, msg: 'success', data })
 
 export function getAdminUsers(params = {}) {
   return request.get('/admin/users', { params })
@@ -54,19 +53,6 @@ export function offlineArticle(id) {
   return request.put(`/admin/diet/articles/${id}/offline`)
 }
 
-export function getStatistics() {
-  // TODO: return request.get('/admin/statistics')
-  return mockResolve({
-    total_users: 1280,
-    active_users: 430,
-    total_actions: 86,
-    total_articles: 54,
-    total_courses: 32,
-    total_reservations: 218,
-    user_growth: [
-      { month: '11月', count: 80 }, { month: '12月', count: 120 },
-      { month: '1月', count: 200 }, { month: '2月', count: 280 },
-      { month: '3月', count: 380 }, { month: '4月', count: 430 }
-    ]
-  })
+export function getStatistics(granularity = 'month') {
+  return request.get('/admin/statistics', { params: { granularity } })
 }

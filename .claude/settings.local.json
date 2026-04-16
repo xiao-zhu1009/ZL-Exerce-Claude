@@ -6,7 +6,9 @@
       "Bash(npm install:*)",
       "Bash(xargs grep:*)",
       "Bash(xargs sed:*)",
-      "mcp__ide__getDiagnostics"
+      "mcp__ide__getDiagnostics",
+      "Bash(mkdir -p \"D:\\\\桌面\\\\claude-ZL\\\\ZL_BF_VUE2\\\\docs\")",
+      "Bash(mkdir -p \"D:\\\\桌面\\\\claude-ZL\\\\ZL_BG_FastApi\\\\docs\")"
     ]
   }
 }
