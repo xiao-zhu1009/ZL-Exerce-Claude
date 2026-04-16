@@ -32,31 +32,31 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="热量(kcal/100)" prop="calories">
+            <el-form-item label="热量(kcal)" prop="calories">
               <el-input v-model.number="form.calories" type="number" min="0" placeholder="每100g/ml的热量" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row :gutter="16">
           <el-col :span="8">
-            <el-form-item label="蛋白质(g/100)" prop="protein">
+            <el-form-item label="蛋白质" prop="protein">
               <el-input v-model.number="form.protein" type="number" min="0" placeholder="每100g/ml含量" />
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="碳水(g/100)" prop="carbs">
+            <el-form-item label="碳水" prop="carbs">
               <el-input v-model.number="form.carbs" type="number" min="0" placeholder="每100g/ml含量" />
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="脂肪(g/100)" prop="fat">
+            <el-form-item label="脂肪" prop="fat">
               <el-input v-model.number="form.fat" type="number" min="0" placeholder="每100g/ml含量" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row :gutter="16">
           <el-col :span="8">
-            <el-form-item label="膳食纤维(g/100)">
+            <el-form-item label="膳食纤维">
               <el-input v-model.number="form.fiber" type="number" min="0" placeholder="每100g/ml含量" />
             </el-form-item>
           </el-col>
