@@ -32,32 +32,32 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="热量(kcal)" prop="calories">
-              <el-input v-model.number="form.calories" type="number" min="0" />
+            <el-form-item label="热量(kcal/100)" prop="calories">
+              <el-input v-model.number="form.calories" type="number" min="0" placeholder="每100g/ml的热量" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row :gutter="16">
           <el-col :span="8">
-            <el-form-item label="蛋白质(g)" prop="protein">
-              <el-input v-model.number="form.protein" type="number" min="0" />
+            <el-form-item label="蛋白质(g/100)" prop="protein">
+              <el-input v-model.number="form.protein" type="number" min="0" placeholder="每100g/ml含量" />
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="碳水(g)" prop="carbs">
-              <el-input v-model.number="form.carbs" type="number" min="0" />
+            <el-form-item label="碳水(g/100)" prop="carbs">
+              <el-input v-model.number="form.carbs" type="number" min="0" placeholder="每100g/ml含量" />
             </el-form-item>
           </el-col>
           <el-col :span="8">
-            <el-form-item label="脂肪(g)" prop="fat">
-              <el-input v-model.number="form.fat" type="number" min="0" />
+            <el-form-item label="脂肪(g/100)" prop="fat">
+              <el-input v-model.number="form.fat" type="number" min="0" placeholder="每100g/ml含量" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row :gutter="16">
           <el-col :span="8">
-            <el-form-item label="膳食纤维(g)">
-              <el-input v-model.number="form.fiber" type="number" min="0" />
+            <el-form-item label="膳食纤维(g/100)">
+              <el-input v-model.number="form.fiber" type="number" min="0" placeholder="每100g/ml含量" />
             </el-form-item>
           </el-col>
         </el-row>
@@ -78,16 +78,16 @@
         <el-table-column prop="name" label="食物名称" min-width="120" />
         <el-table-column prop="category" label="分类" min-width="80" />
         <el-table-column prop="unit" label="单位" min-width="60" />
-        <el-table-column label="热量(kcal)" min-width="90">
+        <el-table-column label="热量(kcal/100)" min-width="110">
           <template slot-scope="scope"><b style="color:#409EFF">{{ scope.row.calories }}</b></template>
         </el-table-column>
-        <el-table-column label="蛋白质(g)" min-width="90">
+        <el-table-column label="蛋白质(g/100)" min-width="105">
           <template slot-scope="scope"><span style="color:#67C23A">{{ scope.row.protein }}</span></template>
         </el-table-column>
-        <el-table-column label="碳水(g)" min-width="80">
+        <el-table-column label="碳水(g/100)" min-width="95">
           <template slot-scope="scope"><span style="color:#E6A23C">{{ scope.row.carbs }}</span></template>
         </el-table-column>
-        <el-table-column label="脂肪(g)" min-width="80">
+        <el-table-column label="脂肪(g/100)" min-width="95">
           <template slot-scope="scope"><span style="color:#F56C6C">{{ scope.row.fat }}</span></template>
         </el-table-column>
         <el-table-column label="状态" min-width="90">
