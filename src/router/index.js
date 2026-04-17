@@ -50,14 +50,8 @@ const routes = [
       { path: 'training', component: () => import('@/views/user/Training/index.vue'), meta: { title: '训练中心' } },
       // 训练中心动作库动作详情
       { path: 'training/actions/:id', component: () => import('@/views/user/Training/ActionDetail.vue'), meta: { title: '动作详情' } },
-      // // 动作库（直接路由，不使用重定向）
-      // { path: 'actions', component: () => import('@/views/user/Training/index.vue'), meta: { title: '动作库' } },
-      // // 动作库详情（直接路由，不使用重定向）
-      // { path: 'actions/:id', component: () => import('@/views/user/Training/ActionDetail.vue'), meta: { title: '动作详情' } },
       // 饮食中心
       { path: 'diet', component: () => import('@/views/user/DietCenter/index.vue'), meta: { title: '饮食中心' } },
-      // // 饮食中心食物库食物详情
-      // { path: 'diet/articles/:id', redirect: to => ({ path: `/user/articles/${to.params.id}` }) },
       // 文章库
       { path: 'articles', component: () => import('@/views/user/ArticleLibrary/index.vue'), meta: { title: '文章库' } },
       // 文章库文章详情
@@ -97,13 +91,21 @@ const routes = [
     meta: { role: 'admin' },
     children: [
       { path: '', redirect: 'statistics' },
+      // 数据统计
       { path: 'statistics', component: () => import('@/views/admin/Statistics/index.vue'), meta: { title: '数据统计' } },
+      // 用户管理
       { path: 'users', component: () => import('@/views/admin/UserManage/index.vue'), meta: { title: '用户管理' } },
-      { path: 'review/actions', component: () => import('@/views/admin/ContentReview/ActionReview.vue'), meta: { title: '动作审核' } },
-      { path: 'review/articles', component: () => import('@/views/admin/ContentReview/ArticleReview.vue'), meta: { title: '文章审核' } },
-      { path: 'review/courses', component: () => import('@/views/admin/ContentReview/CourseReview.vue'), meta: { title: '课程审核' } },
-      { path: 'review/foods', component: () => import('@/views/admin/ContentReview/FoodReview.vue'), meta: { title: '食物库审核' } },
+      // 动作审核
+      { path: 'review/actions', component: () => import('@/views/admin/ActionReview/index.vue'), meta: { title: '动作审核' } },
+      // 文章审核
+      { path: 'review/articles', component: () => import('@/views/admin/ArticleReview/index.vue'), meta: { title: '文章审核' } },
+      // 课程审核
+      { path: 'review/courses', component: () => import('@/views/admin/CourseReview/index.vue'), meta: { title: '课程审核' } },
+      // 食物审核
+      { path: 'review/foods', component: () => import('@/views/admin/FoodReview/index.vue'), meta: { title: '食物库审核' } },
+      // 教练申请
       { path: 'coach-apply', component: () => import('@/views/admin/CoachApply/index.vue'), meta: { title: '教练申请' } },
+      // 绑定监管
       { path: 'bind-monitor', component: () => import('@/views/admin/BindMonitor/index.vue'), meta: { title: '绑定监管' } }
     ]
   }
