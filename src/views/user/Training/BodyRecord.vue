@@ -299,7 +299,7 @@ export default {
   align-items: center;
 }
 .chart-box {
-  width: 100%;
+  width: 1400px;
   max-width: 100%;
   min-width: 0;
   height: 400px;

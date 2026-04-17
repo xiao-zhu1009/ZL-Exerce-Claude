@@ -87,6 +87,7 @@ export default {
       loaded: false,
     }
   },
+  
   methods: {
     ensureLoaded() {
       if (!this.loaded) this.fetchList()
