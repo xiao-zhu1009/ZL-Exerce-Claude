@@ -1,4 +1,11 @@
-# 项目长期规则（Claude 必须严格遵守）
+---
+description: 
+alwaysApply: true
+---
+
+# ZL_BF_VUE2（前端项目）ZL_BG_FastApi(后端项目)长期规则（必须严格遵守）
+
+## 以下只适用于修改前面备注的两个项目规则
 
 ## 一、项目技术栈（固定不变）
 前端：
