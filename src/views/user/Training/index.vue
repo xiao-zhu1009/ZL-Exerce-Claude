@@ -1,16 +1,16 @@
 <template>
   <div class="training-center">
     <el-tabs v-model="activeTab" type="border-card" @tab-click="onMainTabClick">
-      <el-tab-pane label="训练记录" name="log">
+      <el-tab-pane label="训练记录" name="log" lazy destroy-on-hide>
         <workout-log />
       </el-tab-pane>
-      <el-tab-pane label="身体记录" name="body">
+      <el-tab-pane label="身体记录" name="body" lazy destroy-on-hide>
         <body-record />
       </el-tab-pane>
-      <el-tab-pane label="训练计划" name="plan">
+      <el-tab-pane label="训练计划" name="plan" lazy destroy-on-hide>
         <training-plan />
       </el-tab-pane>
-      <el-tab-pane label="数据统计" name="chart">
+      <el-tab-pane label="数据统计" name="chart" lazy destroy-on-hide>
         <training-chart />
       </el-tab-pane>
       <el-tab-pane label="动作库" name="actions" lazy>
