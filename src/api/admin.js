@@ -53,6 +53,6 @@ export function offlineArticle(id) {
   return request.put(`/admin/diet/articles/${id}/offline`)
 }
 
-export function getStatistics(granularity = 'month') {
+export function getStatistics(granularity = 'day') {
   return request.get('/admin/statistics', { params: { granularity } })
 }

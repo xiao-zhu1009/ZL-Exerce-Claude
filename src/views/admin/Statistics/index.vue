@@ -12,8 +12,8 @@
       <div slot="header" style="display:flex;align-items:center;justify-content:space-between">
         <span>用户增长趋势</span>
         <el-radio-group v-model="granularity" size="small" @change="loadChart">
-          <el-radio-button label="month">按月</el-radio-button>
           <el-radio-button label="day">按日</el-radio-button>
+          <el-radio-button label="month">按月</el-radio-button>
         </el-radio-group>
       </div>
       <div ref="growthChart" style="height:300px" />
@@ -30,13 +30,13 @@ export default {
   data() {
     return {
       overviewCards: [],
-      granularity: 'month', // 当前粒度：month / day
+      granularity: 'day', // 默认按日；month=近6月，day=近30天
       chart: null
     }
   },
   async created() {
     // 加载概览卡片（只需请求一次，粒度切换不影响卡片数据）
-    const res = await getStatistics('month')
+    const res = await getStatistics('day')
     const d = res.data
     this.overviewCards = [
       { label: '总用户数', value: d.total_users },

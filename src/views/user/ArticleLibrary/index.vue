@@ -66,7 +66,7 @@ export default {
       list: [],
       total: 0,
       filters: { category: '', keyword: '', page: 1, page_size: 12 },
-      categories: ['增肌餐', '减脂餐', '均衡饮食', '补剂知识'],
+      categories: ['饮食', '训练', '新手', '误区', '身材管理', '健康', '工具', '计划'],
     }
   },
   created() {

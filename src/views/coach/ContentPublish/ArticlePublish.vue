@@ -91,7 +91,7 @@ export default {
     return {
       form: { title: '', category: '', cover_img: '', summary: '', content: '' },
       myArticles: [],
-      categories: ['增肌餐', '减脂餐', '均衡饮食', '补剂知识'],
+      categories: ['饮食', '训练', '新手', '误区', '身材管理', '健康', '工具', '计划'],
       editId: null,       // 非 null 时为修改模式
       rejectTip: '',      // 当前选中驳回文章的驳回原因
       coverUploading: false,
