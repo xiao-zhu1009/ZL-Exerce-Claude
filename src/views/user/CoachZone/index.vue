@@ -1,88 +1,30 @@
 <template>
   <div>
     <el-tabs v-model="activeTab">
-      <!-- ── 找教练 ── -->
       <el-tab-pane label="找教练" name="list">
-        <div style="display:flex;gap:12px;margin-bottom:16px">
-          <el-input v-model="keyword" placeholder="搜索教练昵称" clearable style="width:220px"
-            @keyup.enter.native="fetchCoaches" />
-          <el-button type="primary" @click="fetchCoaches">搜索</el-button>
-        </div>
-
-        <el-row :gutter="16" v-loading="listLoading">
-          <el-col v-for="c in coaches" :key="c.id" :span="6" style="margin-bottom:16px">
-            <el-card shadow="hover" body-style="padding:16px;text-align:center">
-              <el-avatar :size="64" :src="c.avatar" style="margin-bottom:8px">
-                <i class="el-icon-user" />
-              </el-avatar>
-              <div style="font-weight:bold;font-size:15px;margin-bottom:4px">{{ c.nickname }}</div>
-              <div style="color:#909399;font-size:12px;min-height:32px;padding:0 4px;overflow:hidden;
-                text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical">
-                {{ c.signature || '暂无简介' }}
-              </div>
-              <div style="margin-top:10px;display:flex;gap:6px;justify-content:center">
-                <el-button size="mini" @click="viewDetail(c.id)">查看详情</el-button>
-                <el-button
-                  size="mini" type="primary"
-                  :disabled="!!bindStatusMap[c.id]"
-                  @click="handleApply(c)"
-                >{{ bindStatusMap[c.id] || '申请绑定' }}</el-button>
-              </div>
-            </el-card>
-          </el-col>
-          <el-col v-if="!listLoading && coaches.length === 0" :span="24">
-            <el-empty description="暂无教练" />
-          </el-col>
-        </el-row>
-
-        <el-pagination
-          v-if="total > pageSize" background layout="prev,pager,next"
-          :total="total" :page-size="pageSize" :current-page="page"
-          style="margin-top:16px;text-align:right"
-          @current-change="onPageChange"
+        <find-coach
+          :loading="listLoading"
+          :coaches="coaches"
+          :keyword.sync="keyword"
+          :page="page"
+          :page-size="pageSize"
+          :total="total"
+          :bind-status-map="bindStatusMap"
+          @search="fetchCoaches"
+          @view-detail="viewDetail"
+          @apply="handleApply"
+          @page-change="onPageChange"
         />
       </el-tab-pane>
 
-      <!-- ── 我的教练 ── -->
       <el-tab-pane label="我的教练" name="mine">
-        <div v-loading="mineLoading">
-          <!-- 已绑定 -->
-          <el-card v-if="myCoach" style="max-width:480px">
-            <div style="display:flex;align-items:center;gap:20px;margin-bottom:16px">
-              <el-avatar :size="72" :src="myCoach.avatar">
-                <i class="el-icon-user" />
-              </el-avatar>
-              <div>
-                <div style="font-size:18px;font-weight:bold">{{ myCoach.nickname }}</div>
-                <div style="color:#909399;font-size:13px;margin-top:4px">{{ myCoach.signature || '暂无简介' }}</div>
-                <div style="color:#67C23A;font-size:12px;margin-top:6px">
-                  <i class="el-icon-check" /> 绑定于 {{ myCoach.bind_at ? myCoach.bind_at.slice(0,10) : '-' }}
-                </div>
-              </div>
-            </div>
-            <div style="display:flex;gap:10px">
-              <el-button size="small" @click="viewDetail(myCoach.coach_id)">查看主页</el-button>
-              <el-button size="small" type="danger" @click="handleUnbind">解除绑定</el-button>
-            </div>
-          </el-card>
-
-          <!-- 申请中（pending） -->
-          <el-card v-else-if="pendingApply" style="max-width:480px">
-            <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px">
-              <el-avatar :size="56">
-                <i class="el-icon-user" />
-              </el-avatar>
-              <div>
-                <div style="font-size:16px;font-weight:bold">{{ pendingApply.nickname }}</div>
-                <el-tag type="warning" size="small" style="margin-top:6px">
-                  <i class="el-icon-loading" /> 申请中，等待教练处理
-                </el-tag>
-              </div>
-            </div>
-          </el-card>
-
-          <el-empty v-else description="暂未绑定教练，去「找教练」申请吧" />
-        </div>
+        <my-coach
+          :loading="mineLoading"
+          :my-coach="myCoach"
+          :pending-apply="pendingApply"
+          @view-detail="viewDetail"
+          @unbind="handleUnbind"
+        />
       </el-tab-pane>
     </el-tabs>
 
@@ -181,9 +123,15 @@
 <script>
 import { getCoaches, applyBind, getMyCoach, unbindCoach } from '@/api/coachBind'
 import { getCoachPublicProfile } from '@/api/coach'
+import FindCoach from './FindCoach.vue'
+import MyCoach from './MyCoach.vue'
 
 export default {
   name: 'CoachZone',
+  components: {
+    FindCoach,
+    MyCoach,
+  },
   data() {
     return {
       activeTab: 'list',
