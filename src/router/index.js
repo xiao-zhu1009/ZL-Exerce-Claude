@@ -44,21 +44,26 @@ const routes = [
     meta: { role: 'user' },
     children: [
       { path: '', redirect: 'dashboard' },
+      // 数据看板
       { path: 'dashboard', component: () => import('@/views/user/Dashboard/index.vue'), meta: { title: '数据看板' } },
+      // 训练中心
       { path: 'actions', redirect: () => ({ path: '/user/training', query: { tab: 'actions' } }) },
+      // 动作库详情
       { path: 'actions/:id', redirect: to => ({ path: `/user/training/actions/${to.params.id}` }) },
+      // 饮食中心
       { path: 'diet', component: () => import('@/views/user/DietCenter/index.vue'), meta: { title: '饮食中心' } },
-      // 旧路由重定向，避免收藏夹失效
-      { path: 'diet/record', redirect: () => ({ path: '/user/diet', query: { tab: 'record' } }) },
+      // 食物库详情
       { path: 'diet/articles/:id', redirect: to => ({ path: `/user/articles/${to.params.id}` }) },
+      // 文章库
       { path: 'articles', component: () => import('@/views/user/ArticleLibrary/index.vue'), meta: { title: '文章库' } },
+      // 文章库详情
       { path: 'articles/:id', component: () => import('@/views/user/ArticleLibrary/ArticleDetail.vue'), meta: { title: '文章详情' } },
+      // 课程预约
       { path: 'courses', component: () => import('@/views/user/Course/index.vue'), meta: { title: '课程预约' } },
+      // 个人主页
       { path: 'profile', component: () => import('@/views/user/Profile/index.vue'), meta: { title: '个人主页' } },
+      // 申请成为教练
       { path: 'apply-coach', component: () => import('@/views/user/ApplyCoach/index.vue'), meta: { title: '申请成为教练' } },
-      { path: 'training', component: () => import('@/views/user/Training/index.vue'), meta: { title: '训练中心' } },
-      { path: 'training/actions/:id', component: () => import('@/views/user/Training/ActionDetail.vue'), meta: { title: '动作详情' } },
-      { path: 'coach-zone', component: () => import('@/views/user/CoachZone/index.vue'), meta: { title: '教练专区' } }
     ]
   },
 

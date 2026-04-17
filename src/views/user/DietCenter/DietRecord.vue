@@ -140,7 +140,6 @@
     </el-tabs>
 
     <el-dialog title="添加饮食记录" :visible.sync="dialogVisible" width="960px" top="5vh" @close="resetDialog">
-      <!-- 已有记录提示 -->
       <el-alert v-if="existingRows.length" type="info" :closable="false" show-icon
         style="margin-bottom:12px"
         :title="`今日已有 ${existingRows.length} 条记录（灰色行），新增行请填写后提交`" />
@@ -150,7 +149,6 @@
       </div>
 
       <el-table :data="rows" border size="small" :row-class-name="rowClass">
-        <!-- 餐次：每行独立选择 -->
         <el-table-column label="餐次" min-width="140">
           <template slot-scope="scope">
             <el-select v-model="scope.row.meal_type" size="small" style="width:100%"
@@ -276,11 +274,10 @@
 import { getDietRecords, addDietRecord, updateDietRecord, deleteDietRecord, searchFoods, getDietRangeSummary } from '@/api/diet'
 import * as echarts from 'echarts'
 
-// 新增行模板，meal_type 默认早餐，_existing 标记是否为已有记录（只读展示）
 const emptyRow = (mealType = 1) => ({ food_name: '', amount: 100, calories: 0, protein: 0, carbs: 0, fat: 0, meal_type: mealType, _food: null, _existing: false })
 
 export default {
-  name: 'DietRecordPanel',
+  name: 'DietRecord',
   data() {
     return {
       activeTab: 'daily',
@@ -291,7 +288,7 @@ export default {
         { type: 3, label: '晚餐' }, { type: 4, label: '加餐' }
       ],
       dialogVisible: false,
-      dialogMealType: 1,  // 保留字段兼容，实际已改为行级 meal_type
+      dialogMealType: 1,
       rows: [emptyRow()],
       submitting: false,
       editVisible: false,
@@ -313,9 +310,7 @@ export default {
     batchProtein() { return this.newRows.reduce((s, r) => s + Number(r.protein || 0), 0).toFixed(1) },
     batchCarbs() { return this.newRows.reduce((s, r) => s + Number(r.carbs || 0), 0).toFixed(1) },
     batchFat() { return this.newRows.reduce((s, r) => s + Number(r.fat || 0), 0).toFixed(1) },
-    // 已有记录行（只读展示）
     existingRows() { return this.rows.filter(r => r._existing) },
-    // 新增行（待提交）
     newRows() { return this.rows.filter(r => !r._existing) },
     trendDateRange() {
       if (!this.trendData.length) return ''
@@ -337,15 +332,16 @@ export default {
     }
   },
   methods: {
+    isViewingDate(date) {
+      return this.date === date
+    },
     onTabChange(tab) {
       if (tab.name === 'trend' && !this.trendData.length) this.fetchTrend()
     },
-
     async fetchRecords() {
       const res = await getDietRecords(this.date)
       this.records = res.data || []
     },
-
     async fetchTrend() {
       this.trendLoading = true
       try {
@@ -354,7 +350,6 @@ export default {
         this.$nextTick(() => this.renderChart())
       } finally { this.trendLoading = false }
     },
-
     renderChart() {
       const el = this.$refs.trendChart
       if (!el) return
@@ -406,15 +401,12 @@ export default {
         ]
       }, true)
     },
-
     jumpToDate(date) {
       this.date = date
       this.activeTab = 'daily'
       this.fetchRecords()
     },
-
     openDialog() {
-      // 把当天已有记录回填为只读行，再追加一个空白新增行
       const existing = this.records.map(r => ({
         food_name: r.food_name,
         amount: Number(r.amount),
@@ -424,12 +416,11 @@ export default {
         fat: Number(r.fat),
         meal_type: r.meal_type,
         _food: null,
-        _existing: true  // 标记为已有，不参与提交
+        _existing: true
       }))
       this.rows = [...existing, emptyRow()]
       this.dialogVisible = true
     },
-
     openEditDialog(row) {
       this.editForm = {
         id: row.id,
@@ -443,7 +434,6 @@ export default {
       }
       this.editVisible = true
     },
-
     async submitEdit() {
       if (!this.editForm.food_name || !this.editForm.food_name.trim()) {
         return this.$message.warning('食物名称不能为空')
@@ -470,9 +460,7 @@ export default {
     },
     resetDialog() { this.rows = [emptyRow()] },
     addRow() { this.rows.push(emptyRow()) },
-    // 只允许删除新增行，已有行不可删
     removeRow(i) { if (!this.rows[i]._existing) this.rows.splice(i, 1) },
-
     async searchFood(keyword, cb) {
       if (!keyword) return cb([])
       try {
@@ -480,14 +468,12 @@ export default {
         cb((res.data || []).map(f => ({ ...f, value: f.name })))
       } catch { cb([]) }
     },
-
     onFoodSelect(food, index) {
       const row = this.rows[index]
       row._food = food
       row.food_name = food.name
       this.recalc(index)
     },
-
     recalc(index) {
       const row = this.rows[index]
       if (!row._food) return
@@ -497,9 +483,7 @@ export default {
       row.carbs = +(row._food.carbs * ratio).toFixed(1)
       row.fat = +(row._food.fat * ratio).toFixed(1)
     },
-
     async submitBatch() {
-      // 只提交新增行，跳过已有记录行
       const toSubmit = this.newRows
       const invalid = toSubmit.find(r => !r.food_name.trim() || !r.amount || r.amount <= 0)
       if (invalid) return this.$message.warning('请填写完整的食物名称和食用量')
@@ -510,7 +494,7 @@ export default {
           const res = await addDietRecord({
             food_id: row._food ? row._food.id : null,
             food_name: row.food_name.trim(),
-            meal_type: row.meal_type,  // 使用行级餐次
+            meal_type: row.meal_type,
             amount: row.amount,
             calories: row.calories || 0,
             protein: row.protein || 0,
@@ -529,7 +513,6 @@ export default {
         this.$message.error(e.message || '部分记录添加失败')
       } finally { this.submitting = false }
     },
-
     async deleteRecord(id) {
       await this.$confirm('确认删除该条记录？', '提示', { type: 'warning' })
       const res = await deleteDietRecord(id)
@@ -540,11 +523,9 @@ export default {
         this.$message.error(res.message || '删除失败')
       }
     },
-
     recordsByMeal(type) { return this.records.filter(r => r.meal_type === type) },
     mealCalories(type) { return this.recordsByMeal(type).reduce((s, r) => s + Number(r.calories), 0).toFixed(0) },
     toNum(v) { return Number(v).toFixed(1) },
-    // 已有记录行加灰色样式
     rowClass({ row }) { return row._existing ? 'existing-row' : '' }
   }
 }
@@ -552,11 +533,8 @@ export default {
 
 <style scoped>
 .auto-filled >>> .el-input__inner { background: #f0f9eb; color: #67C23A; }
-
-/* 已有记录行：灰底只读样式 */
 .existing-row { background: #f5f5f5; }
 .existing-row >>> td { background: #f5f5f5 !important; color: #909399; }
-
 .stat-card { text-align: center; padding: 4px 0; }
 .stat-label { font-size: 13px; color: #909399; margin-bottom: 6px; }
 .stat-value { font-size: 22px; font-weight: bold; line-height: 1.2; }
