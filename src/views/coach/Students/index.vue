@@ -1,42 +1,22 @@
 <template>
   <div>
     <el-tabs v-model="activeTab" @tab-click="onTabChange">
-      <!-- ── 已绑定学员 ── -->
       <el-tab-pane label="我的学员" name="active">
-        <el-table :data="students" v-loading="loading" border fit>
-          <el-table-column prop="nickname" label="学员昵称" min-width="100" />
-          <el-table-column prop="goal" label="训练目标" min-width="120" show-overflow-tooltip />
-          <el-table-column prop="bind_at" label="绑定时间" min-width="130">
-            <template slot-scope="scope">{{ scope.row.bind_at ? scope.row.bind_at.slice(0,10) : '-' }}</template>
-          </el-table-column>
-          <el-table-column label="操作" min-width="160">
-            <template slot-scope="scope">
-              <el-button size="mini" type="primary" @click="$router.push(`/coach/students/${scope.row.id}`)">查看详情</el-button>
-              <el-button size="mini" type="danger" @click="handleEndBind(scope.row)">解绑</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
+        <my-students
+          :students="students"
+          :loading="loading"
+          @view-detail="handleViewDetail"
+          @end-bind="handleEndBind"
+        />
       </el-tab-pane>
 
-      <!-- ── 待处理申请 ── -->
-      <el-tab-pane name="pending">
-        <span slot="label">
-          待处理申请
-          <el-badge v-if="pendingCount > 0" :value="pendingCount" style="margin-left:4px" />
-        </span>
-        <el-table :data="requests" v-loading="reqLoading" border fit>
-          <el-table-column prop="nickname" label="学员昵称" min-width="100" />
-          <el-table-column prop="request_msg" label="申请留言" min-width="180" show-overflow-tooltip />
-          <el-table-column prop="created_at" label="申请时间" min-width="130">
-            <template slot-scope="scope">{{ scope.row.created_at ? scope.row.created_at.slice(0,10) : '-' }}</template>
-          </el-table-column>
-          <el-table-column label="操作" min-width="160">
-            <template slot-scope="scope">
-              <el-button size="mini" type="success" @click="handleApprove(scope.row)">同意</el-button>
-              <el-button size="mini" type="danger" @click="handleReject(scope.row)">拒绝</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
+      <el-tab-pane label="待处理申请" name="pending">
+        <pending-applications
+          :requests="requests"
+          :loading="reqLoading"
+          @approve="handleApprove"
+          @reject="handleReject"
+        />
       </el-tab-pane>
     </el-tabs>
 
@@ -53,9 +33,15 @@
 
 <script>
 import { getStudents, getBindRequests, approveBindRequest, rejectBindRequest, coachEndBind } from '@/api/coach'
+import MyStudents from './MyStudents.vue'
+import PendingApplications from './PendingApplications.vue'
 
 export default {
   name: 'Students',
+  components: {
+    MyStudents,
+    PendingApplications,
+  },
   data() {
     return {
       activeTab: 'active',
@@ -78,6 +64,9 @@ export default {
     this.fetchPendingCount()
   },
   methods: {
+    handleViewDetail(studentId) {
+      this.$router.push(`/coach/students/${studentId}`)
+    },
     onTabChange(tab) {
       if (tab.name === 'active') this.fetchStudents()
       if (tab.name === 'pending') this.fetchRequests()

@@ -1,66 +1,28 @@
 <template>
   <div>
-    <!-- Tab 切换：课程列表 / 预约审批 -->
     <el-tabs v-model="activeTab">
       <el-tab-pane label="我的课程" name="courses">
-        <el-button type="primary" icon="el-icon-plus" @click="openDialog()" style="margin-bottom:16px">发布课程</el-button>
-        <el-table :data="list" v-loading="loading" border fit>
-          <el-table-column prop="title" label="课程名称" min-width="150" show-overflow-tooltip />
-          <el-table-column prop="category" label="类型" min-width="70" />
-          <el-table-column prop="start_time" label="开始时间" min-width="150" />
-          <el-table-column label="价格" min-width="70">
-            <template slot-scope="scope">{{ scope.row.price === '0.00' ? '免费' : '¥' + scope.row.price }}</template>
-          </el-table-column>
-          <el-table-column label="名额" min-width="70">
-            <template slot-scope="scope">{{ scope.row.enrolled }}/{{ scope.row.max_people }}</template>
-          </el-table-column>
-          <el-table-column label="状态" min-width="80">
-            <template slot-scope="scope">
-              <el-tag :type="statusType(scope.row.status)" size="small">{{ statusLabel(scope.row.status) }}</el-tag>
-            </template>
-          </el-table-column>
-          <el-table-column label="操作" min-width="180">
-            <template slot-scope="scope">
-              <!-- 已驳回：可修改 -->
-              <el-button v-if="scope.row.status === 4" size="mini" type="warning" @click="openDialog(scope.row)">修改</el-button>
-              <!-- 待审核/已驳回：可删除 -->
-              <el-button v-if="scope.row.status === 0 || scope.row.status === 4" size="mini" type="danger" @click="remove(scope.row)">删除</el-button>
-              <!-- 招募中/满员：查看预约 -->
-              <el-badge :value="scope.row.pending_count" :hidden="!scope.row.pending_count" style="margin-left:4px">
-                <el-button v-if="scope.row.status === 1 || scope.row.status === 2" size="mini" @click="viewReservations(scope.row)">预约列表</el-button>
-              </el-badge>
-            </template>
-          </el-table-column>
-        </el-table>
-        <el-empty v-if="!loading && list.length === 0" description="暂无课程" />
+        <my-courses-tab
+          :list="list"
+          :loading="loading"
+          :status-label="statusLabel"
+          :status-type="statusType"
+          @open-dialog="openDialog"
+          @remove-course="remove"
+          @view-reservations="viewReservations"
+        />
       </el-tab-pane>
 
       <el-tab-pane label="预约审批" name="reservations">
-        <div v-if="!currentCourse" style="color:#999;padding:20px">请在「我的课程」中点击「预约列表」查看</div>
-        <template v-else>
-          <div style="margin-bottom:12px">
-            <el-tag>{{ currentCourse.title }}</el-tag>
-            <el-button size="mini" style="margin-left:8px" @click="currentCourse = null">返回</el-button>
-          </div>
-          <el-table :data="reservations" v-loading="resLoading" border fit>
-            <el-table-column prop="user_name" label="学员" min-width="90" />
-            <el-table-column prop="created_at" label="申请时间" min-width="150" />
-            <el-table-column label="状态" min-width="80">
-              <template slot-scope="scope">
-                <el-tag :type="reserveStatusType(scope.row.status)" size="small">{{ reserveStatusLabel(scope.row.status) }}</el-tag>
-              </template>
-            </el-table-column>
-            <el-table-column prop="cancel_reason" label="拒绝原因" min-width="120" show-overflow-tooltip />
-            <el-table-column label="操作" min-width="130">
-              <template slot-scope="scope">
-                <template v-if="scope.row.status === 1">
-                  <el-button size="mini" type="success" @click="approve(scope.row, 2)">确认</el-button>
-                  <el-button size="mini" type="danger" @click="openReject(scope.row)">拒绝</el-button>
-                </template>
-              </template>
-            </el-table-column>
-          </el-table>
-        </template>
+        <reservation-approval-tab
+          :current-course="currentCourse"
+          :reservations="reservations"
+          :loading="resLoading"
+          :reserve-status-label="reserveStatusLabel"
+          :reserve-status-type="reserveStatusType"
+          @approve="approve"
+          @open-reject="openReject"
+        />
       </el-tab-pane>
     </el-tabs>
 
@@ -121,12 +83,18 @@ import {
   getMyCourses, publishCourse, updateCourse, deleteCourse,
   uploadCourseCover, getCourseReservations, approveReservation
 } from '@/api/course'
+import MyCoursesTab from './MyCoursesTab.vue'
+import ReservationApprovalTab from './ReservationApprovalTab.vue'
 
 const BASE = process.env.VUE_APP_API_BASE || 'http://127.0.0.1:8009/api'
 const emptyForm = () => ({ id: null, title: '', category: '', difficulty: 1, cover_img: '', start_time: '', end_time: '', location: '', max_people: 10, price: 0, description: '' })
 
 export default {
   name: 'CourseManage',
+  components: {
+    MyCoursesTab,
+    ReservationApprovalTab,
+  },
   data() {
     return {
       activeTab: 'courses',
@@ -146,8 +114,23 @@ export default {
       rejectVisible: false,
       rejectReason: '',
       currentReservation: null,
-      operating: false
+      operating: false,
+      // 标记是否由“我的课程-预约列表”按钮进入审批页
+      enterReservationsByCourseClick: false
     }
+  },
+  watch: {
+    activeTab(val) {
+      if (val !== 'reservations') {
+        return
+      }
+      if (!this.enterReservationsByCourseClick) {
+        // 直接点击 Tab 进入时，不展示课程预约数据
+        this.currentCourse = null
+        this.reservations = []
+      }
+      this.enterReservationsByCourseClick = false
+    },
   },
   created() { this.fetchList() },
   methods: {
@@ -219,6 +202,7 @@ export default {
     },
 
     async viewReservations(course) {
+      this.enterReservationsByCourseClick = true
       this.currentCourse = course
       this.activeTab = 'reservations'
       this.resLoading = true

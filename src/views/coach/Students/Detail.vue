@@ -1,11 +1,8 @@
 <template>
   <div>
     <el-button icon="el-icon-arrow-left" @click="$router.back()" style="margin-bottom:16px">返回</el-button>
-
     <div v-loading="pageLoading">
       <el-row :gutter="20" v-if="student">
-
-        <!-- 左列：学员基本信息 + 身体指标 + 训练记录 -->
         <el-col :span="10">
           <el-card>
             <div slot="header">学员信息</div>
@@ -57,13 +54,9 @@
           </el-card>
         </el-col>
 
-        <!-- 右列：Tab 切换训练计划 / 饮食计划 -->
         <el-col :span="14">
           <el-tabs v-model="rightTab">
-
-            <!-- ── 训练计划 ── -->
             <el-tab-pane label="训练计划" name="training">
-              <!-- 已有训练计划 -->
               <el-card style="margin-bottom:16px">
                 <div slot="header" style="display:flex;justify-content:space-between;align-items:center">
                   <span>已有训练计划</span>
@@ -82,7 +75,6 @@
                 </div>
               </el-card>
 
-              <!-- 制定训练计划表单 -->
               <el-card>
                 <div slot="header">制定训练计划</div>
                 <el-form :model="planForm" :rules="planRules" ref="planForm" label-width="90px">
@@ -112,8 +104,13 @@
                         <el-input v-model="day.label" placeholder="如：周一 / Day1" size="small" style="width:150px" />
                         <el-button type="text" icon="el-icon-delete" style="color:#F56C6C" @click="removeDay(idx)" />
                       </div>
-                      <el-input v-model="day.content" type="textarea" :rows="2" size="small"
-                        placeholder="如：深蹲 4×12，卧推 4×10..." />
+                      <el-input
+                        v-model="day.content"
+                        type="textarea"
+                        :rows="2"
+                        size="small"
+                        placeholder="如：深蹲 4×12，卧推 4×10..."
+                      />
                     </div>
                     <el-button size="small" icon="el-icon-plus" @click="addDay">添加一天</el-button>
                   </el-form-item>
@@ -124,9 +121,7 @@
               </el-card>
             </el-tab-pane>
 
-            <!-- ── 饮食计划 ── -->
             <el-tab-pane label="饮食计划" name="diet">
-              <!-- 已有饮食计划 -->
               <el-card style="margin-bottom:16px">
                 <div slot="header" style="display:flex;justify-content:space-between;align-items:center">
                   <span>已有饮食计划</span>
@@ -141,16 +136,13 @@
                     </div>
                     <div class="plan-item-meta">{{ p.goal }} · {{ p.start_date }} ~ {{ p.end_date }}</div>
                     <div style="margin-top:4px">
-                      <el-button v-if="p.status === 1" size="mini" type="warning"
-                        @click="changeDietPlanStatus(p.id, 0)">终止</el-button>
-                      <el-button v-if="p.status === 1" size="mini" type="success"
-                        @click="changeDietPlanStatus(p.id, 2)">标记完成</el-button>
+                      <el-button v-if="p.status === 1" size="mini" type="warning" @click="changeDietPlanStatus(p.id, 0)">终止</el-button>
+                      <el-button v-if="p.status === 1" size="mini" type="success" @click="changeDietPlanStatus(p.id, 2)">标记完成</el-button>
                     </div>
                   </div>
                 </div>
               </el-card>
 
-              <!-- 制定饮食计划表单 -->
               <el-card>
                 <div slot="header">制定饮食计划</div>
                 <el-form :model="dietForm" :rules="dietRules" ref="dietForm" label-width="90px">
@@ -172,8 +164,7 @@
                     <el-date-picker v-model="dietForm.end_date" type="date" value-format="yyyy-MM-dd" style="width:100%" />
                   </el-form-item>
                   <el-form-item label="整体说明">
-                    <el-input v-model="dietForm.description" type="textarea" :rows="2"
-                      placeholder="热量目标、饮食原则、禁忌食物等" />
+                    <el-input v-model="dietForm.description" type="textarea" :rows="2" placeholder="热量目标、饮食原则、禁忌食物等" />
                   </el-form-item>
                   <el-form-item label="每日餐次">
                     <div v-for="(day, idx) in dietForm.days" :key="idx" class="day-item">
@@ -204,10 +195,8 @@
                 </el-form>
               </el-card>
             </el-tab-pane>
-
           </el-tabs>
         </el-col>
-
       </el-row>
     </div>
   </div>
@@ -230,50 +219,54 @@ export default {
       pageLoading: false,
       rightTab: 'training',
       student: null,
-      // 训练计划
       plans: [],
       planSubmitting: false,
       planForm: { title: '', goal: '', start_date: '', end_date: '', description: '', days: [] },
       planRules: {
-        title:      [{ required: true, message: '请输入计划名称', trigger: 'blur' }],
-        goal:       [{ required: true, message: '请选择训练目标', trigger: 'change' }],
+        title: [{ required: true, message: '请输入计划名称', trigger: 'blur' }],
+        goal: [{ required: true, message: '请选择训练目标', trigger: 'change' }],
         start_date: [{ required: true, message: '请选择开始日期', trigger: 'change' }],
-        end_date:   [{ required: true, message: '请选择结束日期', trigger: 'change' }],
+        end_date: [{ required: true, message: '请选择结束日期', trigger: 'change' }],
       },
-      // 饮食计划
       dietPlans: [],
       dietSubmitting: false,
       dietForm: { title: '', goal: '', start_date: '', end_date: '', description: '', days: [] },
       dietRules: {
-        title:      [{ required: true, message: '请输入计划名称', trigger: 'blur' }],
-        goal:       [{ required: true, message: '请选择饮食目标', trigger: 'change' }],
+        title: [{ required: true, message: '请输入计划名称', trigger: 'blur' }],
+        goal: [{ required: true, message: '请选择饮食目标', trigger: 'change' }],
         start_date: [{ required: true, message: '请选择开始日期', trigger: 'change' }],
-        end_date:   [{ required: true, message: '请选择结束日期', trigger: 'change' }],
+        end_date: [{ required: true, message: '请选择结束日期', trigger: 'change' }],
       },
     }
   },
   async created() {
-    this.pageLoading = true
-    try {
-      const res = await getStudentDetail(this.$route.params.id)
-      this.student = res.data || null
-      await Promise.all([this.fetchPlans(), this.fetchDietPlans()])
-    } catch (e) {
-      this.$message.error(e?.response?.data?.message || '加载失败')
-    } finally {
-      this.pageLoading = false
-    }
+    await this.loadPageData()
   },
   methods: {
-    // ── 训练计划 ──────────────────────────────────────────
+    async loadPageData() {
+      this.pageLoading = true
+      try {
+        const res = await getStudentDetail(this.$route.params.id)
+        this.student = res.data || null
+        await Promise.all([this.fetchPlans(), this.fetchDietPlans()])
+      } catch (e) {
+        this.$message.error(e?.response?.data?.message || '加载失败')
+      } finally {
+        this.pageLoading = false
+      }
+    },
     async fetchPlans() {
       try {
         const res = await getStudentPlans(this.$route.params.id)
         this.plans = res.data || []
       } catch {}
     },
-    addDay() { this.planForm.days.push({ label: '', content: '' }) },
-    removeDay(idx) { this.planForm.days.splice(idx, 1) },
+    addDay() {
+      this.planForm.days.push({ label: '', content: '' })
+    },
+    removeDay(idx) {
+      this.planForm.days.splice(idx, 1)
+    },
     async submitPlan() {
       await this.$refs.planForm.validate()
       if (this.planForm.end_date < this.planForm.start_date) {
@@ -281,15 +274,15 @@ export default {
       }
       this.planSubmitting = true
       try {
-        const days = this.planForm.days.filter(d => d.label || d.content)
+        const days = this.planForm.days.filter((d) => d.label || d.content)
         await createPlan({
-          student_id:  this.student.id,
-          title:       this.planForm.title,
-          goal:        this.planForm.goal,
-          start_date:  this.planForm.start_date,
-          end_date:    this.planForm.end_date,
+          student_id: this.student.id,
+          title: this.planForm.title,
+          goal: this.planForm.goal,
+          start_date: this.planForm.start_date,
+          end_date: this.planForm.end_date,
           description: this.planForm.description,
-          content:     days.length ? { days } : null,
+          content: days.length ? { days } : null,
         })
         this.$message.success('训练计划已提交')
         this.$refs.planForm.resetFields()
@@ -298,10 +291,9 @@ export default {
       } catch (e) {
         this.$message.error(e?.response?.data?.message || '提交失败')
       } finally {
-        this.planSubmitting = false }
+        this.planSubmitting = false
+      }
     },
-
-    // ── 饮食计划 ──────────────────────────────────────────
     async fetchDietPlans() {
       try {
         const res = await coachGetDietPlans(this.$route.params.id)
@@ -311,7 +303,9 @@ export default {
     addDietDay() {
       this.dietForm.days.push({ label: '', breakfast: '', lunch: '', dinner: '', snack: '' })
     },
-    removeDietDay(idx) { this.dietForm.days.splice(idx, 1) },
+    removeDietDay(idx) {
+      this.dietForm.days.splice(idx, 1)
+    },
     async submitDietPlan() {
       await this.$refs.dietForm.validate()
       if (this.dietForm.end_date < this.dietForm.start_date) {
@@ -319,15 +313,15 @@ export default {
       }
       this.dietSubmitting = true
       try {
-        const days = this.dietForm.days.filter(d => d.label || d.breakfast || d.lunch || d.dinner)
+        const days = this.dietForm.days.filter((d) => d.label || d.breakfast || d.lunch || d.dinner)
         await coachCreateDietPlan({
-          student_id:  this.student.id,
-          title:       this.dietForm.title,
-          goal:        this.dietForm.goal,
-          start_date:  this.dietForm.start_date,
-          end_date:    this.dietForm.end_date,
+          student_id: this.student.id,
+          title: this.dietForm.title,
+          goal: this.dietForm.goal,
+          start_date: this.dietForm.start_date,
+          end_date: this.dietForm.end_date,
           description: this.dietForm.description,
-          content:     days.length ? { days } : null,
+          content: days.length ? { days } : null,
         })
         this.$message.success('饮食计划已提交')
         this.$refs.dietForm.resetFields()
@@ -350,31 +344,55 @@ export default {
         this.$message.error(e?.response?.data?.message || '操作失败')
       }
     },
-
-    // ── 通用 ──────────────────────────────────────────────
     bmiLabel(b) {
       if (b < 18.5) return '偏瘦'
-      if (b < 24)   return '正常'
-      if (b < 28)   return '超重'
+      if (b < 24) return '正常'
+      if (b < 28) return '超重'
       return '肥胖'
     },
     bmiType(b) {
       if (b < 18.5) return 'primary'
-      if (b < 24)   return 'success'
-      if (b < 28)   return 'warning'
+      if (b < 24) return 'success'
+      if (b < 28) return 'warning'
       return 'danger'
     },
-    statusLabel(s) { return STATUS_MAP[s]?.label || '未知' },
-    statusType(s)  { return STATUS_MAP[s]?.type  || '' },
+    statusLabel(s) {
+      return STATUS_MAP[s]?.label || '未知'
+    },
+    statusType(s) {
+      return STATUS_MAP[s]?.type || ''
+    },
   },
 }
 </script>
 
 <style scoped>
-.plan-item { padding: 8px 0; border-bottom: 1px solid #f0f0f0; }
-.plan-item:last-child { border-bottom: none; }
-.plan-item-title { font-size: 14px; font-weight: 500; }
-.plan-item-meta  { font-size: 12px; color: #909399; margin-top: 2px; }
-.day-item { margin-bottom: 12px; padding: 10px; background: #fafafa; border-radius: 4px; }
-.day-header { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.plan-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.plan-item:last-child {
+  border-bottom: none;
+}
+.plan-item-title {
+  font-size: 14px;
+  font-weight: 500;
+}
+.plan-item-meta {
+  font-size: 12px;
+  color: #909399;
+  margin-top: 2px;
+}
+.day-item {
+  margin-bottom: 12px;
+  padding: 10px;
+  background: #fafafa;
+  border-radius: 4px;
+}
+.day-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
 </style>
