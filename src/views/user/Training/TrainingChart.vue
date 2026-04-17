@@ -92,7 +92,6 @@ export default {
     async fetchTrend() {
       const res = await getDailyStats(this.trendDays);
       const list = res.data || [];
-      console.log('list',list)
       const dates = list.map((d) => d.date.slice(5)); // 截取 MM-DD
       const durations = list.map((d) => d.duration);
       const calories = list.map((d) => d.calories);

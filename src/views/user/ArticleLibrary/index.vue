@@ -1,7 +1,5 @@
 <template>
   <div>
-    <!-- <h2 style="margin-bottom:20px">文章库</h2> -->
-
     <!-- 筛选栏 -->
     <el-card style="margin-bottom:16px">
       <el-row :gutter="12">

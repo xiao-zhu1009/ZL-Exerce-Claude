@@ -1,16 +1,16 @@
 <template>
   <div class="training-center">
     <el-tabs v-model="activeTab" type="border-card" @tab-click="onMainTabClick">
-      <el-tab-pane label="训练记录" name="log" lazy destroy-on-hide>
+      <el-tab-pane label="训练记录" name="log" lazy>
         <workout-log />
       </el-tab-pane>
-      <el-tab-pane label="身体记录" name="body" lazy destroy-on-hide>
+      <el-tab-pane label="身体记录" name="body" lazy>
         <body-record />
       </el-tab-pane>
-      <el-tab-pane label="训练计划" name="plan" lazy destroy-on-hide>
+      <el-tab-pane label="训练计划" name="plan" lazy>
         <training-plan />
       </el-tab-pane>
-      <el-tab-pane label="数据统计" name="chart" lazy destroy-on-hide>
+      <el-tab-pane label="数据统计" name="chart" lazy>
         <training-chart />
       </el-tab-pane>
       <el-tab-pane label="动作库" name="actions" lazy>
@@ -42,12 +42,6 @@ export default {
     };
   },
   watch: {
-    "$route.query.tab": {
-      immediate: true,
-      handler() {
-        this.applyRouteTab();
-      },
-    },
     activeTab(val) {
       if (val === "actions") {
         this.$nextTick(() => {
@@ -56,11 +50,7 @@ export default {
       }
     },
   },
-  created() {
-    this.applyRouteTab();
-  },
   mounted() {
-    // created 阶段 lazy 子组件未挂载，若初始 tab 已是 actions 需在 mounted 补触发
     if (this.activeTab === "actions") {
       this.$nextTick(() => {
         if (this.$refs.actionPanel) this.$refs.actionPanel.ensureLoaded();
@@ -68,25 +58,9 @@ export default {
     }
   },
   methods: {
-    applyRouteTab() {
-      const t = (this.$route.query.tab || "").toString();
-      if (t === "actions") this.activeTab = "actions";
-    },
     onMainTabClick(tab) {
       if (tab.name === "actions") {
         this.$refs.actionPanel && this.$refs.actionPanel.ensureLoaded();
-      }
-      const q = { ...this.$route.query };
-      if (tab.name === "actions") {
-        q.tab = "actions";
-      } else {
-        delete q.tab;
-      }
-      const same = JSON.stringify(q) === JSON.stringify(this.$route.query);
-      if (!same) {
-        this.$router
-          .replace({ path: "/user/training", query: q })
-          .catch(() => {});
       }
     },
   },

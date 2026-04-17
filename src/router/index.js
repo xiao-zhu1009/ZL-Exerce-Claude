@@ -47,17 +47,23 @@ const routes = [
       // 数据看板
       { path: 'dashboard', component: () => import('@/views/user/Dashboard/index.vue'), meta: { title: '数据看板' } },
       // 训练中心
-      { path: 'actions', redirect: () => ({ path: '/user/training', query: { tab: 'actions' } }) },
-      // 动作库详情
-      { path: 'actions/:id', redirect: to => ({ path: `/user/training/actions/${to.params.id}` }) },
+      { path: 'training', component: () => import('@/views/user/Training/index.vue'), meta: { title: '训练中心' } },
+      // 训练中心动作库动作详情
+      { path: 'training/actions/:id', component: () => import('@/views/user/Training/ActionDetail.vue'), meta: { title: '动作详情' } },
+      // // 动作库（直接路由，不使用重定向）
+      // { path: 'actions', component: () => import('@/views/user/Training/index.vue'), meta: { title: '动作库' } },
+      // // 动作库详情（直接路由，不使用重定向）
+      // { path: 'actions/:id', component: () => import('@/views/user/Training/ActionDetail.vue'), meta: { title: '动作详情' } },
       // 饮食中心
       { path: 'diet', component: () => import('@/views/user/DietCenter/index.vue'), meta: { title: '饮食中心' } },
-      // 食物库详情
-      { path: 'diet/articles/:id', redirect: to => ({ path: `/user/articles/${to.params.id}` }) },
+      // // 饮食中心食物库食物详情
+      // { path: 'diet/articles/:id', redirect: to => ({ path: `/user/articles/${to.params.id}` }) },
       // 文章库
       { path: 'articles', component: () => import('@/views/user/ArticleLibrary/index.vue'), meta: { title: '文章库' } },
-      // 文章库详情
+      // 文章库文章详情
       { path: 'articles/:id', component: () => import('@/views/user/ArticleLibrary/ArticleDetail.vue'), meta: { title: '文章详情' } },
+      // 教练专区
+      { path: 'coach-zone', component: () => import('@/views/user/CoachZone/index.vue'), meta: { title: '教练专区' } },
       // 课程预约
       { path: 'courses', component: () => import('@/views/user/Course/index.vue'), meta: { title: '课程预约' } },
       // 个人主页

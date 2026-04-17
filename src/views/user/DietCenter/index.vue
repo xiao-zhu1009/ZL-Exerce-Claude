@@ -1,10 +1,10 @@
 <template>
   <div class="diet-center">
     <el-tabs v-model="activeTab" type="border-card">
-      <el-tab-pane label="我的饮食计划" name="dietPlans" lazy destroy-on-hide>
+      <el-tab-pane label="我的饮食计划" name="dietPlans" lazy>
         <diet-plan />
       </el-tab-pane>
-      <el-tab-pane label="饮食记录" name="record" lazy destroy-on-hide>
+      <el-tab-pane label="饮食记录" name="record" lazy>
         <diet-record ref="dietRecord" />
       </el-tab-pane>
       <el-tab-pane label="食物库" name="foods" lazy>
