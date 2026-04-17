@@ -74,12 +74,19 @@ const routes = [
     meta: { role: 'coach' },
     children: [
       { path: '', redirect: 'students' },
+      // 学员管理
       { path: 'students', component: () => import('@/views/coach/Students/index.vue'), meta: { title: '学员管理' } },
+      // 学员详情
       { path: 'students/:id', component: () => import('@/views/coach/Students/Detail.vue'), meta: { title: '学员详情' } },
+      // 课程管理
       { path: 'courses', component: () => import('@/views/coach/CourseManage/index.vue'), meta: { title: '课程管理' } },
+      // 动作库投稿
       { path: 'publish/action', component: () => import('@/views/coach/ContentPublish/ActionPublish.vue'), meta: { title: '动作库投稿' } },
+      // 文章库投稿
       { path: 'publish/article', component: () => import('@/views/coach/ContentPublish/ArticlePublish.vue'), meta: { title: '文章库投稿' } },
+      // 食物库投稿
       { path: 'foods', component: () => import('@/views/coach/FoodSubmit/index.vue'), meta: { title: '食物库投稿' } },
+      // 个人主页
       { path: 'profile', component: () => import('@/views/coach/Profile/index.vue'), meta: { title: '个人主页' } }
     ]
   },
