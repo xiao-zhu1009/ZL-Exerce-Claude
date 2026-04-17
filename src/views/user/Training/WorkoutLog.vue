@@ -90,7 +90,7 @@
         <el-form-item label="消耗卡路里" prop="calories">
           <el-input-number v-model="form.calories" :min="0" :max="9999" style="width:100%" />
         </el-form-item>
-        <el-form-item label="备注">
+        <el-form-item label="备注" prop="note">
           <el-input v-model="form.note" type="textarea" :rows="2" placeholder="可选" />
         </el-form-item>
 
