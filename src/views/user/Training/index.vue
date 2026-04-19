@@ -1,6 +1,6 @@
 <template>
   <div class="training-center">
-    <el-tabs v-model="activeTab" type="border-card" @tab-click="onMainTabClick">
+    <el-tabs v-model="activeTab" type="border-card">
       <el-tab-pane label="训练记录" name="log" lazy>
         <workout-log />
       </el-tab-pane>
@@ -14,7 +14,7 @@
         <training-chart />
       </el-tab-pane>
       <el-tab-pane label="动作库" name="actions" lazy>
-        <action-library-panel ref="actionPanel" />
+        <action-library-panel />
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -41,26 +41,17 @@ export default {
       activeTab: "log",
     };
   },
-  watch: {
-    activeTab(val) {
-      if (val === "actions") {
-        this.$nextTick(() => {
-          if (this.$refs.actionPanel) this.$refs.actionPanel.ensureLoaded();
-        });
-      }
-    },
-  },
-  mounted() {
-    if (this.activeTab === "actions") {
-      this.$nextTick(() => {
-        if (this.$refs.actionPanel) this.$refs.actionPanel.ensureLoaded();
-      });
-    }
+  created() {
+    this.initActiveTabFromQuery();
   },
   methods: {
-    onMainTabClick(tab) {
-      if (tab.name === "actions") {
-        this.$refs.actionPanel && this.$refs.actionPanel.ensureLoaded();
+    // 仅处理从动作详情返回时带回的 ?tab=actions，手动切换 tab 不再改 URL
+    initActiveTabFromQuery() {
+      const { tab, ...restQuery } = this.$route.query;
+      if (tab === "actions") {
+        this.activeTab = tab;
+        // 读取一次后清理 tab 参数，避免后续 URL 一直保留 tab
+        this.$router.replace({ query: restQuery }).catch(() => {});
       }
     },
   },
@@ -68,9 +59,6 @@ export default {
 </script>
 
 <style scoped>
-/* .training-center {
-  padding: 20px;
-} */
 .page-header {
   margin-bottom: 16px;
 }

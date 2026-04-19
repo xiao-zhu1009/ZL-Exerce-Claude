@@ -90,6 +90,7 @@ export default {
       this.overviewCards[1].value = d.calories_burned_week
       this.overviewCards[2].value = d.calories_intake_today
       this.overviewCards[3].value = d.current_weight ?? '--'
+      // 初始化echarts图表：体重变化趋势、本周训练时长、热量摄入趋势、训练类型分布
       this.$nextTick(() => {
         this.initWeightChart(d.body_records || [])
         this.initWorkoutChart(d.workout_week || [])
@@ -119,9 +120,16 @@ export default {
       }
       chart.setOption({
         tooltip: { trigger: 'axis', formatter: p => `${p[0].axisValue}<br/>体重：${p[0].data} kg` },
-        grid: { left: 50, right: 20, top: 20, bottom: 40 },
+        // top 需留足：y轴 name「kg」在刻度上方，过小会被容器裁切；max 略抬高避免折线顶穿网格
+        grid: { left: 50, right: 20, top: 48, bottom: 40, containLabel: true },
         xAxis: { type: 'category', data: records.map(r => r.date.slice(5)), axisLabel: { fontSize: 11 } },
-        yAxis: { type: 'value', name: 'kg', min: v => Math.floor(v.min - 1), axisLabel: { fontSize: 11 } },
+        yAxis: {
+          type: 'value',
+          name: 'kg',
+          min: v => Math.floor(v.min - 1),
+          max: v => Math.ceil(v.max) + 0.5,
+          axisLabel: { fontSize: 11 },
+        },
         series: [{
           name: '体重', type: 'line', smooth: true,
           data: records.map(r => r.weight),
@@ -136,7 +144,7 @@ export default {
       this.charts.push(chart)
       chart.setOption({
         tooltip: { trigger: 'axis', formatter: p => `${p[0].name}<br/>训练时长：${p[0].data} 分钟` },
-        grid: { left: 50, right: 20, top: 20, bottom: 40 },
+        grid: { left: 50, right: 20, top: 48, bottom: 40, containLabel: true },
         xAxis: { type: 'category', data: weekData.map(d => d.day), axisLabel: { fontSize: 11 } },
         yAxis: { type: 'value', name: '分钟', axisLabel: { fontSize: 11 } },
         series: [{
@@ -157,7 +165,7 @@ export default {
       this.charts.push(chart)
       chart.setOption({
         tooltip: { trigger: 'axis', formatter: p => `${p[0].axisValue}<br/>摄入：${p[0].data} kcal` },
-        grid: { left: 60, right: 20, top: 20, bottom: 40 },
+        grid: { left: 60, right: 20, top: 48, bottom: 40, containLabel: true },
         xAxis: { type: 'category', data: dietData.map(d => d.date.slice(5)), axisLabel: { fontSize: 11 } },
         yAxis: { type: 'value', name: 'kcal', axisLabel: { fontSize: 11 } },
         series: [{

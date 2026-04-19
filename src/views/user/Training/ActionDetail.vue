@@ -99,6 +99,7 @@ export default {
     async fetchDetail() {
       this.loading = true
       try {
+        console.log('this.$route：',this.$route)
         const res = await getActionDetail(this.$route.params.id)
         this.action = res.data
       } finally {

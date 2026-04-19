@@ -125,6 +125,7 @@ router.beforeEach((to, from, next) => {
 
   // 登录页、注册页、403路由页无需全局前置守卫token验证，其余路由跳转需要判断有无token+失效验证
   if (WHITE_LIST.includes(to.path)) {
+    // cookie中有未过期的token直接根据当前账号角色跳转登录后的首页 
     if (token && !isTokenExpired(token)) {
       const home = ROLE_HOME[resolveRoleForHome(token)]
       if (home) return next(home)

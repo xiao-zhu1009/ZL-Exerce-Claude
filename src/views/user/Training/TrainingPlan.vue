@@ -39,6 +39,9 @@
               <el-tag v-if="plan.coach_id > 0" size="mini" type="warning">
                 <i class="el-icon-user" /> {{ plan.coach_name || "教练指定" }}
               </el-tag>
+              <el-tag v-else size="mini" type="info">
+                <i class="el-icon-edit-outline" /> 自建
+              </el-tag>
               <el-tag :type="statusType(plan.status)" size="small">{{
                 statusLabel(plan.status)
               }}</el-tag>
@@ -93,14 +96,13 @@
           <el-descriptions-item label="结束日期">{{
             detailPlan.end_date
           }}</el-descriptions-item>
-          <el-descriptions-item
-            v-if="detailPlan.coach_id > 0"
-            label="制定教练"
-            :span="2"
-          >
-            <el-tag size="small" type="warning">{{
-              detailPlan.coach_name || "教练"
-            }}</el-tag>
+          <el-descriptions-item label="计划来源" :span="2">
+            <el-tag v-if="detailPlan.coach_id > 0" size="small" type="warning">
+              <i class="el-icon-user" /> {{ detailPlan.coach_name || "教练制定" }}
+            </el-tag>
+            <el-tag v-else size="small" type="info">
+              <i class="el-icon-edit-outline" /> 自建计划
+            </el-tag>
           </el-descriptions-item>
           <el-descriptions-item
             v-if="detailPlan.description"

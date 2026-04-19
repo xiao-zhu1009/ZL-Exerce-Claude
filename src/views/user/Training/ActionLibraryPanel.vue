@@ -87,8 +87,14 @@ export default {
       loaded: false,
     }
   },
-  
+
+  // lazy Tab 首次挂载时再请求，与父组件无关
+  mounted() {
+    this.ensureLoaded()
+  },
+
   methods: {
+    /** 供外部可选手动刷新；默认由 mounted 触发首次加载 */
     ensureLoaded() {
       if (!this.loaded) this.fetchList()
     },
