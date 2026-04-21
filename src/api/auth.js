@@ -19,3 +19,13 @@ export function verifyCode(data) {
 export function register(data) {
   return request.post('/auth/register', data)
 }
+
+// 忘记密码 - 发送验证码
+export function forgotPasswordSendCode(data) {
+  return request.post('/auth/forgot-password/send-code', data)
+}
+
+// 忘记密码 - 重置密码
+export function forgotPasswordReset(data) {
+  return request.post('/auth/forgot-password/reset', data)
+}

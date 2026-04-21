@@ -5,7 +5,7 @@ import { getToken, removeToken } from '@/utils/auth'
 
 Vue.use(VueRouter)
 
-const WHITE_LIST = ['/login', '/register', '/403']
+const WHITE_LIST = ['/login', '/register', '/403', '/forgot-password']
 const ROLE_HOME = { user: '/user/dashboard', coach: '/coach/students', admin: '/admin/statistics' }
 
 function decodeJwtPayload(token) {
@@ -35,6 +35,7 @@ const routes = [
   { path: '/', redirect: '/login' },
   { path: '/login', component: () => import('@/views/auth/Login.vue') },
   { path: '/register', component: () => import('@/views/auth/Register.vue') },
+  { path: '/forgot-password', component: () => import('@/views/auth/ForgotPassword.vue') },
   { path: '/403', component: () => import('@/views/auth/Forbidden.vue') },
 
   // 用户端
