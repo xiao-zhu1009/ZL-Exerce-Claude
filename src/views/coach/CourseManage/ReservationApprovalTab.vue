@@ -11,7 +11,6 @@
       <el-table :data="reservations" v-loading="loading" border fit>
         <el-table-column prop="student_name" label="学员" min-width="120" />
         <el-table-column prop="phone" label="手机号" min-width="120" />
-        <el-table-column prop="reserve_note" label="备注" min-width="180" show-overflow-tooltip />
         <el-table-column prop="created_at" label="预约时间" min-width="160" />
         <el-table-column label="状态" min-width="90">
           <template slot-scope="scope">

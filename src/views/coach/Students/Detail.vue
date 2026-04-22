@@ -325,7 +325,7 @@ export default {
         })
         this.$message.success('饮食计划已提交')
         this.$refs.dietForm.resetFields()
-        this.dietForm.days = []
+        this.dietForm = { title: '', goal: '', start_date: '', end_date: '', description: '', days: [] }
         await this.fetchDietPlans()
       } catch (e) {
         this.$message.error(e?.response?.data?.message || '提交失败')
